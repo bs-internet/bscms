@@ -3,15 +3,18 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\PageController;
+use App\Http\Controllers\Backend\PagesController;
 use App\Http\Controllers\Backend\MenuController;
-use App\Http\Controllers\Backend\CompanyController;
-use App\Http\Controllers\Backend\GalleryController;
-use App\Http\Controllers\Backend\SliderController;
+
+use App\Http\Controllers\Backend\ModulesController;
 use App\Http\Controllers\Backend\ContactController;
+use App\Http\Controllers\Backend\GalleryController;
 use App\Http\Controllers\Backend\NewsletterController;
+use App\Http\Controllers\Backend\SliderController;
+
+use App\Http\Controllers\Backend\SettingsController;
+use App\Http\Controllers\Backend\CompanyController;
 use App\Http\Controllers\Backend\ProfileController;
-use App\Http\Controllers\Backend\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,14 +31,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('admin')->group(function () {
+Route::middleware('auth')->prefix('admin')->group(function () {
 
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'index')->name('dashboard');
     });
 
-    Route::controller(PageController::class)->prefix('page')->group(function () {
-        Route::get('/', 'index')->name('pages');;
+    Route::controller(PagesController::class)->prefix('page')->group(function () {
+        Route::get('/pages', 'index')->name('pages');;
         /*Route::get('/new', 'edit');
         Route::get('/edit/{page}', 'detail');
 
@@ -43,39 +46,47 @@ Route::prefix('admin')->group(function () {
     });
 
     Route::controller(MenuController::class)->group(function () {
-        Route::get('/', 'index')->name('menu');;
+        Route::get('/menu', 'index')->name('menu');;
     });
 
-    Route::controller(CompanyController::class)->group(function () {
-        Route::get('/', 'index')->name('company');;
+    Route::prefix('modules')->group(function () {
+
+        Route::controller(ModulesController::class)->group(function () {
+            Route::get('/', 'index')->name('modules');;
+        });
+
+        Route::controller(ContactController::class)->group(function () {
+            Route::get('/contact', 'index')->name('contact');;
+        });
+
+        Route::controller(GalleryController::class)->group(function () {
+            Route::get('/gallery', 'index')->name('gallery');;
+        });
+
+        Route::controller(NewsletterController::class)->group(function () {
+            Route::get('/newsletter', 'index')->name('newsletter');;
+        });
+
+        Route::controller(SliderController::class)->group(function () {
+            Route::get('/slider', 'index')->name('slider');;
+        });
+
     });
 
-    Route::controller(ContactController::class)->group(function () {
-        Route::get('/', 'index')->name('contact');;
-    });
+    Route::prefix('settings')->group(function () {
 
-    Route::controller(GalleryController::class)->group(function () {
-        Route::get('/', 'index')->name('gallery');;
-    });
+        Route::controller(SettingsController::class)->group(function () {
+            Route::get('/', 'index')->name('settigns');;
+        });
 
-    Route::controller(SliderController::class)->group(function () {
-        Route::get('/', 'index')->name('slider');;
-    });
+        Route::controller(CompanyController::class)->group(function () {
+            Route::get('/company', 'index')->name('company');;
+        });
 
-    Route::controller(ContactController::class)->group(function () {
-        Route::get('/', 'index')->name('contact');;
-    });
+        Route::controller(ProfileController::class)->group(function () {
+            Route::get('/profile', 'index')->name('profile');;
+        });
 
-    Route::controller(NewsletterController::class)->group(function () {
-        Route::get('/', 'index')->name('newsletter');;
-    });
-
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('/', 'index')->name('profile');;
-    });
-
-    Route::controller(SettingController::class)->group(function () {
-        Route::get('/', 'index')->name('settigns');;
     });
 
 });
