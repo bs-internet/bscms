@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers\Backend\Menu;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

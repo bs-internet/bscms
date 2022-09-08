@@ -1,4 +1,4 @@
-<form action="/login" method="post">
+<form action="{{ route('login') }}" method="post">
     @csrf
     <div class="mb-3">
         <label class="form-label">E-posta Adresi</label>
