@@ -2,19 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\PagesController;
-use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\Dashboard\DashboardController;
+use App\Http\Controllers\Backend\Pages\PagesController;
+use App\Http\Controllers\Backend\Menu\MenuController;
 
-use App\Http\Controllers\Backend\ModulesController;
-use App\Http\Controllers\Backend\ContactController;
-use App\Http\Controllers\Backend\GalleryController;
-use App\Http\Controllers\Backend\NewsletterController;
-use App\Http\Controllers\Backend\SliderController;
+use App\Http\Controllers\Backend\Modules\ModulesController;
+use App\Http\Controllers\Backend\Modules\ContactController;
+use App\Http\Controllers\Backend\Modules\GalleryController;
+use App\Http\Controllers\Backend\Modules\NewsletterController;
+use App\Http\Controllers\Backend\Modules\SliderController;
 
-use App\Http\Controllers\Backend\SettingsController;
-use App\Http\Controllers\Backend\CompanyController;
-use App\Http\Controllers\Backend\ProfileController;
+use App\Http\Controllers\Backend\Settings\SettingsController;
+use App\Http\Controllers\Backend\Settings\CompanyController;
+use App\Http\Controllers\Backend\Settings\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
