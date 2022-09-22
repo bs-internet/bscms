@@ -37,8 +37,8 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/', 'index')->name('dashboard');
     });
 
-    Route::controller(PagesController::class)->prefix('page')->group(function () {
-        Route::get('/pages', 'index')->name('pages');;
+    Route::controller(PagesController::class)->prefix('pages')->group(function () {
+        Route::get('/list', 'index')->name('pages');
         /*Route::get('/new', 'edit');
         Route::get('/edit/{page}', 'detail');
 
