@@ -38,11 +38,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     });
 
     Route::controller(PagesController::class)->prefix('pages')->group(function () {
-        Route::get('/list', 'index')->name('pages');
-        /*Route::get('/new', 'edit');
-        Route::get('/edit/{page}', 'detail');
-
-        Route::post('/new', 'store');*/
+        Route::get('/', 'index')->name('list');
+        Route::get('/create', 'create')->name('create');
+        Route::get('/edit/{page}', 'edit')->name('edit');
     });
 
     Route::controller(MenuController::class)->group(function () {
