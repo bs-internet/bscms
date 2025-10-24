@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Backend\Modules;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class GalleryController extends Controller
+class GalleryController extends SingleModuleController
 {
-    public function index()
+    protected function moduleType(): string
     {
-        return view('admin.modules.gallery.index');
+        return 'gallery';
+    }
+
+    protected function viewName(): string
+    {
+        return 'admin.modules.gallery.index';
+    }
+
+    protected function moduleName(): ?string
+    {
+        return 'Galeri';
     }
 }

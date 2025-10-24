@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Backend\Modules;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class ContactController extends Controller
+class ContactController extends SingleModuleController
 {
-    public function index()
+    protected function moduleType(): string
     {
-        return view('admin.modules.contact.index');
+        return 'contact';
+    }
+
+    protected function viewName(): string
+    {
+        return 'admin.modules.contact.index';
+    }
+
+    protected function moduleName(): ?string
+    {
+        return 'İletişim';
     }
 }

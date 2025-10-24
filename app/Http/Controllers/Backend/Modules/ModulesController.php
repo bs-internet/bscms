@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Backend\Modules;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\Content\ModuleService;
+use Illuminate\View\View;
 
 class ModulesController extends Controller
 {
-    public function index()
+    public function __construct(private readonly ModuleService $moduleService)
     {
-        return view('admin.modules.modules.index');
+    }
+
+    public function index(): View
+    {
+        $modules = $this->moduleService->list();
+
+        return view('admin.modules.modules.index', compact('modules'));
     }
 }

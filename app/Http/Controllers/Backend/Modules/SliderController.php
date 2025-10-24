@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Backend\Modules;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class SliderController extends Controller
+class SliderController extends SingleModuleController
 {
-    public function index()
+    protected function moduleType(): string
     {
-        return view('admin.modules.slider.index');
+        return 'slider';
+    }
+
+    protected function viewName(): string
+    {
+        return 'admin.modules.slider.index';
+    }
+
+    protected function moduleName(): ?string
+    {
+        return 'Slider';
     }
 }

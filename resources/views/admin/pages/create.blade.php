@@ -1,4 +1,8 @@
-@extends('admin.template/index')
+@extends('admin.template.index')
+
 @section('content')
-Yeni Sayfa
+    <h1 class="h3 mb-4">Yeni Sayfa Oluştur</h1>
+    <form action="{{ route('admin.pages.store') }}" method="POST">
+        @include('admin.pages._form')
+    </form>
 @endsection

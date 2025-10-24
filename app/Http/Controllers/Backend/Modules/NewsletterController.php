@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Backend\Modules;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class NewsletterController extends Controller
+class NewsletterController extends SingleModuleController
 {
-    public function index()
+    protected function moduleType(): string
     {
-        return view('admin.modules.newsletter.index');
+        return 'newsletter';
+    }
+
+    protected function viewName(): string
+    {
+        return 'admin.modules.newsletter.index';
+    }
+
+    protected function moduleName(): ?string
+    {
+        return 'Bülten';
     }
 }
