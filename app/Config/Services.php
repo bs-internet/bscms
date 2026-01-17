@@ -193,6 +193,72 @@ class Services extends BaseService
         );
     }
 
+    public static function componentRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('componentRepository');
+        }
+
+        return new \App\Repositories\ComponentRepository(
+            new \App\Models\ComponentModel()
+        );
+    }
+
+    public static function componentFieldRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('componentFieldRepository');
+        }
+
+        return new \App\Repositories\ComponentFieldRepository(
+            new \App\Models\ComponentFieldModel()
+        );
+    }
+
+    public static function componentLocationRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('componentLocationRepository');
+        }
+
+        return new \App\Repositories\ComponentLocationRepository(
+            new \App\Models\ComponentLocationModel()
+        );
+    }
+
+    public static function componentInstanceRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('componentInstanceRepository');
+        }
+
+        return new \App\Repositories\ComponentInstanceRepository(
+            new \App\Models\ComponentInstanceModel()
+        );
+    }
+
+    public static function componentInstanceDataRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('componentInstanceDataRepository');
+        }
+
+        return new \App\Repositories\ComponentInstanceDataRepository(
+            new \App\Models\ComponentInstanceDataModel()
+        );
+    }
+
+    public static function contentComponentRepository(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('contentComponentRepository');
+        }
+
+        return new \App\Repositories\ContentComponentRepository(
+            new \App\Models\ContentComponentModel()
+        );
+    }
+
     public static function contentCategoryModel(bool $getShared = true)
     {
         if ($getShared) {

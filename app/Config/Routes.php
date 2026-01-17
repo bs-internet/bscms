@@ -74,6 +74,26 @@ $routes->group('admin', function($routes) {
     $routes->post('form-fields/(:num)/update/(:num)', 'Admin\FormFieldController::update/$1/$2');
     $routes->delete('form-fields/(:num)/delete/(:num)', 'Admin\FormFieldController::delete/$1/$2');
 
+    // Components
+    $routes->get('components', 'Admin\ComponentController::index');
+    $routes->get('components/create', 'Admin\ComponentController::create');
+    $routes->post('components/store', 'Admin\ComponentController::store');
+    $routes->get('components/edit/(:num)', 'Admin\ComponentController::edit/$1');
+    $routes->post('components/update/(:num)', 'Admin\ComponentController::update/$1');
+    $routes->get('components/delete/(:num)', 'Admin\ComponentController::delete/$1');
+    $routes->post('components/(:num)/save-global-data', 'Admin\ComponentController::saveGlobalData/$1');
+
+    // Component Fields (AJAX)
+    $routes->post('component-fields/(:num)/store', 'Admin\ComponentFieldController::store/$1');
+    $routes->post('component-fields/(:num)/update/(:num)', 'Admin\ComponentFieldController::update/$1/$2');
+    $routes->delete('component-fields/(:num)/delete/(:num)', 'Admin\ComponentFieldController::delete/$1/$2');
+
+    // Component Instances (AJAX)
+    $routes->post('component-instances/(:num)/(:num)/store', 'Admin\ComponentInstanceController::store/$1/$2');
+    $routes->post('component-instances/(:num)/update-data', 'Admin\ComponentInstanceController::updateData/$1');
+    $routes->delete('component-instances/(:num)/(:num)/delete', 'Admin\ComponentInstanceController::delete/$1/$2');
+    $routes->post('component-instances/(:num)/reorder', 'Admin\ComponentInstanceController::reorder/$1');
+
     // Media
     $routes->get('media', 'Admin\MediaController::index');
     $routes->post('media/upload', 'Admin\MediaController::upload');
