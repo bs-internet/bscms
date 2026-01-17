@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\ContentTypeFieldModel;
+use App\Repositories\Interfaces\ContentTypeFieldRepositoryInterface;
+
+class ContentTypeFieldRepository implements ContentTypeFieldRepositoryInterface
+{
+    protected ContentTypeFieldModel $model;
+
+    public function __construct(ContentTypeFieldModel $model)
+    {
+        $this->model = $model;
+    }
+
+    public function getByContentTypeId(int $contentTypeId): array
+    {
+        return $this->model->where('content_type_id', $contentTypeId)
+                          ->orderBy('sort_order', 'ASC')
+                          ->findAll();
+    }
+
+    public function findById(int $id): ?object
+    {
+        return $this->model->find($id);
+    }
+
+    public function create(array $data): ?object
+    {
+        $id = $this->model->insert($data);
+        return $id ? $this->findById($id) : null;
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        return $this->model->update($id, $data);
+    }
+
+    public function delete(int $id): bool
+    {
+        return $this->model->delete($id);
+    }
+}
