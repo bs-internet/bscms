@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\FormFieldRepositoryInterface;
 use App\Repositories\Interfaces\FormSubmissionRepositoryInterface;
 use App\Repositories\Interfaces\FormSubmissionDataRepositoryInterface;
 use App\Validation\FormValidation;
+use App\Enums\SubmissionStatus;
 
 class FormController extends BaseController
 {
@@ -152,8 +153,8 @@ class FormController extends BaseController
         $submissionData = $this->formSubmissionDataRepository->getBySubmissionId($id);
         $fields = $this->formFieldRepository->getByFormId($formId);
 
-        if ($submission->status === 'new') {
-            $this->formSubmissionRepository->update($id, ['status' => 'read']);
+        if ($submission->status === SubmissionStatus::NEW) {
+            $this->formSubmissionRepository->update($id, ['status' => SubmissionStatus::READ]);
         }
 
         return view('admin/forms/submission-detail', [

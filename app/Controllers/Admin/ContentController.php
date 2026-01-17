@@ -10,6 +10,7 @@ use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Models\ContentCategoryModel;
 use App\Events\ContentEvents;
 use App\Validation\ContentValidation;
+use App\Enums\ContentStatus;
 
 class ContentController extends BaseController
 {
@@ -88,7 +89,7 @@ class ContentController extends BaseController
             'content_type_id' => $contentTypeId,
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => $this->request->getPost('status')
+            'status' => ContentStatus::from($this->request->getPost('status'))
         ];
 
         $content = $this->contentRepository->create($contentData);
@@ -157,7 +158,7 @@ class ContentController extends BaseController
         $contentData = [
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => $this->request->getPost('status')
+            'status' => ContentStatus::from($this->request->getPost('status'))
         ];
 
         $result = $this->contentRepository->update($id, $contentData);
@@ -187,7 +188,6 @@ class ContentController extends BaseController
             return redirect()->back()->with('error', 'İçerik silinemedi.');
         }
 
-        // Event tetikleme
         \CodeIgniter\Events\Events::trigger('content_deleted', $id);        
 
         return redirect()->to("/admin/contents/{$contentTypeId}")->with('success', 'İçerik başarıyla silindi.');
@@ -236,7 +236,7 @@ class ContentController extends BaseController
         switch ($action) {
             case 'publish':
                 foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => 'published'])) {
+                    if ($this->contentRepository->update($id, ['status' => ContentStatus::PUBLISHED])) {
                         $count++;
                     }
                 }
@@ -245,7 +245,7 @@ class ContentController extends BaseController
 
             case 'draft':
                 foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => 'draft'])) {
+                    if ($this->contentRepository->update($id, ['status' => ContentStatus::DRAFT])) {
                         $count++;
                     }
                 }
@@ -254,7 +254,7 @@ class ContentController extends BaseController
 
             case 'archive':
                 foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => 'archived'])) {
+                    if ($this->contentRepository->update($id, ['status' => ContentStatus::ARCHIVED])) {
                         $count++;
                     }
                 }
@@ -292,7 +292,7 @@ class ContentController extends BaseController
             'content_type_id' => $originalContent->content_type_id,
             'title' => $newTitle,
             'slug' => $newSlug,
-            'status' => 'draft'
+            'status' => ContentStatus::DRAFT
         ]);
 
         if (!$newContent) {

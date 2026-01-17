@@ -35,6 +35,11 @@ $routes->group('admin', function($routes) {
     $routes->post('content-types/update/(:num)', 'Admin\ContentTypeController::update/$1');
     $routes->get('content-types/delete/(:num)', 'Admin\ContentTypeController::delete/$1');
 
+    // Content Type Fields (AJAX)
+    $routes->post('content-type-fields/(:num)/store', 'Admin\ContentTypeFieldController::store/$1');
+    $routes->post('content-type-fields/(:num)/update/(:num)', 'Admin\ContentTypeFieldController::update/$1/$2');
+    $routes->delete('content-type-fields/(:num)/delete/(:num)', 'Admin\ContentTypeFieldController::delete/$1/$2');
+
     // Contents
     $routes->get('contents/(:num)', 'Admin\ContentController::index/$1');
     $routes->get('contents/(:num)/create', 'Admin\ContentController::create/$1');
@@ -63,6 +68,11 @@ $routes->group('admin', function($routes) {
     $routes->get('forms/delete/(:num)', 'Admin\FormController::delete/$1');
     $routes->get('forms/(:num)/submissions', 'Admin\FormController::submissions/$1');
     $routes->get('forms/(:num)/submissions/(:num)', 'Admin\FormController::submissionDetail/$1/$2');
+
+    // Form Fields (AJAX)
+    $routes->post('form-fields/(:num)/store', 'Admin\FormFieldController::store/$1');
+    $routes->post('form-fields/(:num)/update/(:num)', 'Admin\FormFieldController::update/$1/$2');
+    $routes->delete('form-fields/(:num)/delete/(:num)', 'Admin\FormFieldController::delete/$1/$2');
 
     // Media
     $routes->get('media', 'Admin\MediaController::index');

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ContentModel;
 use App\Repositories\Interfaces\ContentRepositoryInterface;
+use App\Enums\ContentStatus;
 
 class ContentRepository implements ContentRepositoryInterface
 {
@@ -19,7 +20,11 @@ class ContentRepository implements ContentRepositoryInterface
         $builder = $this->model->builder();
 
         if (isset($filters['status'])) {
-            $builder->where('status', $filters['status']);
+            if ($filters['status'] instanceof ContentStatus) {
+                $builder->where('status', $filters['status']->value);
+            } else {
+                $builder->where('status', $filters['status']);
+            }
         }
 
         if (isset($filters['content_type_id'])) {
@@ -86,7 +91,11 @@ class ContentRepository implements ContentRepositoryInterface
         $builder->where('content_categories.category_id', $categoryId);
 
         if (isset($filters['status'])) {
-            $builder->where('contents.status', $filters['status']);
+            if ($filters['status'] instanceof ContentStatus) {
+                $builder->where('contents.status', $filters['status']->value);
+            } else {
+                $builder->where('contents.status', $filters['status']);
+            }
         }
 
         if (isset($filters['limit'])) {

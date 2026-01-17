@@ -6,6 +6,8 @@ use App\Repositories\Interfaces\FormRepositoryInterface;
 use App\Repositories\Interfaces\FormFieldRepositoryInterface;
 use App\Repositories\Interfaces\FormSubmissionRepositoryInterface;
 use App\Repositories\Interfaces\FormSubmissionDataRepositoryInterface;
+use App\Enums\FieldType;
+use App\Enums\SubmissionStatus;
 
 class FormController extends BaseController
 {
@@ -47,7 +49,7 @@ class FormController extends BaseController
             'form_id' => $form->id,
             'ip_address' => $this->request->getIPAddress(),
             'user_agent' => $this->request->getUserAgent()->getAgentString(),
-            'status' => 'new'
+            'status' => SubmissionStatus::NEW
         ]);
 
         if (!$submission) {
@@ -86,15 +88,17 @@ class FormController extends BaseController
                 $fieldRules[] = 'required';
             }
 
-            switch ($field->field_type) {
-                case 'email':
+            $fieldType = FieldType::from($field->field_type);
+
+            switch ($fieldType) {
+                case FieldType::EMAIL:
                     $fieldRules[] = 'valid_email';
                     break;
-                case 'number':
+                case FieldType::NUMBER:
                     $fieldRules[] = 'numeric';
                     break;
-                case 'text':
-                case 'textarea':
+                case FieldType::TEXT:
+                case FieldType::TEXTAREA:
                     $fieldRules[] = 'max_length[1000]';
                     break;
             }

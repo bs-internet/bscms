@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\FormSubmissionModel;
 use App\Repositories\Interfaces\FormSubmissionRepositoryInterface;
+use App\Enums\SubmissionStatus;
 
 class FormSubmissionRepository implements FormSubmissionRepositoryInterface
 {
@@ -19,7 +20,11 @@ class FormSubmissionRepository implements FormSubmissionRepositoryInterface
         $builder = $this->model->where('form_id', $formId);
 
         if (isset($filters['status'])) {
-            $builder->where('status', $filters['status']);
+            if ($filters['status'] instanceof SubmissionStatus) {
+                $builder->where('status', $filters['status']->value);
+            } else {
+                $builder->where('status', $filters['status']);
+            }
         }
 
         if (isset($filters['limit'])) {

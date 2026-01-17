@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\MediaRepositoryInterface;
 use App\Models\ContentCategoryModel;
+use App\Enums\ContentStatus;
 
 class ContentQuery
 {
@@ -54,7 +55,11 @@ class ContentQuery
         }
 
         if (isset($this->args['status'])) {
-            $filters['status'] = $this->args['status'];
+            if (is_string($this->args['status'])) {
+                $filters['status'] = ContentStatus::from($this->args['status']);
+            } else {
+                $filters['status'] = $this->args['status'];
+            }
         }
 
         if (isset($this->args['limit'])) {

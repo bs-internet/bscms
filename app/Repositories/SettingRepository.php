@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\SettingModel;
 use App\Repositories\Interfaces\SettingRepositoryInterface;
+use App\Enums\SettingGroup;
 
 class SettingRepository implements SettingRepositoryInterface
 {
@@ -21,7 +22,8 @@ class SettingRepository implements SettingRepositoryInterface
 
     public function getByGroup(string $group): array
     {
-        return $this->model->where('setting_group', $group)->findAll();
+        $groupValue = $group instanceof SettingGroup ? $group->value : $group;
+        return $this->model->where('setting_group', $groupValue)->findAll();
     }
 
     public function findByKey(string $key): ?object
@@ -42,6 +44,8 @@ class SettingRepository implements SettingRepositoryInterface
 
     public function upsert(string $key, $value, string $group): bool
     {
+        $groupValue = $group instanceof SettingGroup ? $group->value : $group;
+        
         $existing = $this->findByKey($key);
 
         if ($existing) {
@@ -51,7 +55,7 @@ class SettingRepository implements SettingRepositoryInterface
         $result = $this->create([
             'setting_key' => $key,
             'setting_value' => $value,
-            'setting_group' => $group
+            'setting_group' => $groupValue
         ]);
 
         return $result !== null;

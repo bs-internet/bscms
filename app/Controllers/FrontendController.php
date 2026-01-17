@@ -8,6 +8,7 @@ use App\Repositories\Interfaces\ContentRepositoryInterface;
 use App\Repositories\Interfaces\ContentTypeRepositoryInterface;
 use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Enums\ContentStatus;
 
 class FrontendController extends BaseController
 {
@@ -31,7 +32,7 @@ class FrontendController extends BaseController
     public function index()
     {
         $contents = $this->contentRepository->getAll([
-            'status' => 'published',
+            'status' => ContentStatus::PUBLISHED,
             'limit' => 10,
             'order_by' => 'created_at',
             'order' => 'DESC'
@@ -47,7 +48,7 @@ class FrontendController extends BaseController
     {
         $content = $this->contentRepository->findBySlug($slug);
 
-        if (!$content || $content->status !== 'published') {
+        if (!$content || $content->status !== ContentStatus::PUBLISHED) {
             return $this->show404();
         }
 
@@ -68,7 +69,7 @@ class FrontendController extends BaseController
 
         $content = $this->contentRepository->findBySlug($slug, $contentType->id);
 
-        if (!$content || $content->status !== 'published') {
+        if (!$content || $content->status !== ContentStatus::PUBLISHED) {
             return $this->show404();
         }
 
@@ -91,13 +92,13 @@ class FrontendController extends BaseController
 
         if ($categoryId) {
             $contents = $this->contentRepository->getByCategory($categoryId, [
-                'status' => 'published',
+                'status' => ContentStatus::PUBLISHED,
                 'order_by' => 'created_at',
                 'order' => 'DESC'
             ]);
         } else {
             $contents = $this->contentRepository->getByContentType($contentType->id, [
-                'status' => 'published',
+                'status' => ContentStatus::PUBLISHED,
                 'order_by' => 'created_at',
                 'order' => 'DESC'
             ]);
@@ -129,7 +130,7 @@ class FrontendController extends BaseController
         }
 
         $contents = $this->contentRepository->getByCategory($category->id, [
-            'status' => 'published',
+            'status' => ContentStatus::PUBLISHED,
             'order_by' => 'created_at',
             'order' => 'DESC'
         ]);
