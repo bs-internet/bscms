@@ -8,61 +8,39 @@ use App\Enums\FieldType;
 class ContentTypeField extends Entity
 {
     protected $datamap = [];
-    
     protected $dates = [];
-    
     protected $casts = [
-        'id' => 'integer',
-        'content_type_id' => 'integer',
-        'is_required' => 'boolean',
-        'sort_order' => 'integer',
+        'content_type_id' => 'int',
         'field_type' => 'enum[' . FieldType::class . ']',
-    ];
-
-    protected $attributes = [
-        'id' => null,
-        'content_type_id' => null,
-        'field_key' => null,
-        'field_type' => null,
-        'field_label' => null,
-        'is_required' => false,
-        'field_options' => null,
-        'sort_order' => 0,
+        'is_required' => 'boolean',
+        'sort_order' => 'int',
     ];
 
     public function getFieldOptionsAttribute(?string $value): ?array
     {
-        if (is_null($value)) {
-            return null;
-        }
-
+        if (is_null($value)) return null;
         $decoded = json_decode($value, true);
         return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
     }
 
     public function setFieldOptionsAttribute($value): self
     {
-        if (is_array($value) || is_object($value)) {
-            $this->attributes['field_options'] = json_encode($value);
-        } else {
-            $this->attributes['field_options'] = $value;
-        }
-        
+        $this->attributes['field_options'] = is_array($value) ? json_encode($value) : $value;
         return $this;
     }
 
     public function getFieldTypeLabel(): string
     {
-        return $this->field_type instanceof FieldType ? $this->field_type->label() : '';
+        return $this->field_type->label();
     }
 
     public function hasOptions(): bool
     {
-        return $this->field_type instanceof FieldType && $this->field_type->hasOptions();
+        return $this->field_type->hasOptions();
     }
 
     public function isMedia(): bool
     {
-        return $this->field_type instanceof FieldType && $this->field_type->isMedia();
+        return $this->field_type->isMedia();
     }
 }

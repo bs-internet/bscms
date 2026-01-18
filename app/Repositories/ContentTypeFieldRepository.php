@@ -14,16 +14,32 @@ class ContentTypeFieldRepository implements ContentTypeFieldRepositoryInterface
         $this->model = $model;
     }
 
-    public function getByContentTypeId(int $contentTypeId): array
+    public function getAll(array $filters = []): array
     {
-        return $this->model->where('content_type_id', $contentTypeId)
-                          ->orderBy('sort_order', 'ASC')
-                          ->findAll();
+        $builder = $this->model->builder();
+
+        if (isset($filters['content_type_id'])) {
+            $builder->where('content_type_id', $filters['content_type_id']);
+        }
+
+        $orderBy = $filters['order_by'] ?? 'sort_order';
+        $order = $filters['order'] ?? 'ASC';
+        $builder->orderBy($orderBy, $order);
+
+        return $builder->get()->getResult($this->model->returnType);
     }
 
     public function findById(int $id): ?object
     {
         return $this->model->find($id);
+    }
+
+    public function getByContentType(int $contentTypeId): array
+    {
+        return $this->model
+            ->where('content_type_id', $contentTypeId)
+            ->orderBy('sort_order', 'ASC')
+            ->findAll();
     }
 
     public function create(array $data): ?object

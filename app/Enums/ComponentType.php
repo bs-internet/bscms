@@ -10,16 +10,16 @@ enum ComponentType: string
     public function label(): string
     {
         return match($this) {
-            self::GLOBAL => 'Global Bileşen',
-            self::SPECIFIC => 'Özel Bileşen',
+            self::GLOBAL => 'Global',
+            self::SPECIFIC => 'Spesifik',
         };
     }
 
     public function description(): string
     {
         return match($this) {
-            self::GLOBAL => 'Tüm sayfalarda kullanılabilir, tek veri kaynağı',
-            self::SPECIFIC => 'Belirlenen içerik türleri/sayfalarda kullanılabilir',
+            self::GLOBAL => 'Tüm sayfalarda kullanılabilir, tek bir veri seti',
+            self::SPECIFIC => 'Belirli içeriklere atanır, her atama için ayrı veri',
         };
     }
 

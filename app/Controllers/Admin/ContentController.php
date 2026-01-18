@@ -4,31 +4,27 @@ namespace App\Controllers\Admin;
 
 use App\Repositories\Interfaces\ContentRepositoryInterface;
 use App\Repositories\Interfaces\ContentTypeRepositoryInterface;
-use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
 use App\Repositories\Interfaces\ContentTypeFieldRepositoryInterface;
+use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
-use App\Models\ContentCategoryModel;
-use App\Events\ContentEvents;
 use App\Validation\ContentValidation;
-use App\Enums\ContentStatus;
+use App\Enums\FieldType;
 
 class ContentController extends BaseController
 {
     protected ContentRepositoryInterface $contentRepository;
     protected ContentTypeRepositoryInterface $contentTypeRepository;
-    protected ContentMetaRepositoryInterface $contentMetaRepository;
-    protected ContentTypeFieldRepositoryInterface $contentTypeFieldRepository;
+    protected ContentTypeFieldRepositoryInterface $fieldRepository;
+    protected ContentMetaRepositoryInterface $metaRepository;
     protected CategoryRepositoryInterface $categoryRepository;
-    protected ContentCategoryModel $contentCategoryModel;
 
     public function __construct()
     {
         $this->contentRepository = service('contentRepository');
         $this->contentTypeRepository = service('contentTypeRepository');
-        $this->contentMetaRepository = service('contentMetaRepository');
-        $this->contentTypeFieldRepository = service('contentTypeFieldRepository');
+        $this->fieldRepository = service('contentTypeFieldRepository');
+        $this->metaRepository = service('contentMetaRepository');
         $this->categoryRepository = service('categoryRepository');
-        $this->contentCategoryModel = service('contentCategoryModel');
     }
 
     public function index(int $contentTypeId)
@@ -38,10 +34,12 @@ class ContentController extends BaseController
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
-            return redirect()->to('/admin/content-types')->with('error', 'İçerik türü bulunamadı.');
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $contents = $this->contentRepository->getByContentType($contentTypeId);
+        $contents = $this->contentRepository->getAll([
+            'content_type_id' => $contentTypeId
+        ]);
 
         return view('admin/contents/index', [
             'contentType' => $contentType,
@@ -56,14 +54,16 @@ class ContentController extends BaseController
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
-            return redirect()->to('/admin/content-types')->with('error', 'İçerik türü bulunamadı.');
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $fields = $this->contentTypeFieldRepository->getByContentTypeId($contentTypeId);
+        $fields = $this->fieldRepository->getByContentType($contentTypeId);
         $categories = [];
 
         if ($contentType->has_categories) {
-            $categories = $this->categoryRepository->getByContentTypeId($contentTypeId);
+            $categories = $this->categoryRepository->getAll([
+                'content_type_id' => $contentTypeId
+            ]);
         }
 
         return view('admin/contents/create', [
@@ -75,38 +75,64 @@ class ContentController extends BaseController
 
     public function store(int $contentTypeId)
     {
+        $this->requireAuth();
+
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
-            return redirect()->to('/admin/content-types')->with('error', 'İçerik türü bulunamadı.');
+            return redirect()->back()->with('error', 'İçerik türü bulunamadı');
         }
 
         if (!$this->validate(ContentValidation::rules(), ContentValidation::messages())) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $contentData = [
+        $data = [
             'content_type_id' => $contentTypeId,
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => ContentStatus::from($this->request->getPost('status'))
+            'status' => $this->request->getPost('status')
         ];
 
-        $content = $this->contentRepository->create($contentData);
+        $content = $this->contentRepository->create($data);
 
         if (!$content) {
-            return redirect()->back()->with('error', 'İçerik oluşturulamadı.');
+            return redirect()->back()->with('error', 'İçerik oluşturulamadı');
         }
 
-        $this->saveMeta($content->id, $contentTypeId);
+        $fields = $this->fieldRepository->getByContentType($contentTypeId);
+
+        foreach ($fields as $field) {
+            $fieldKey = $field->field_key;
+            $value = $this->request->getPost($fieldKey);
+
+            if ($field->field_type === FieldType::RELATION) {
+                $fieldOptions = $field->getFieldOptions();
+
+                if ($fieldOptions['multiple'] ?? false) {
+                    $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
+                } else {
+                    $value = $value ? (string)(int)$value : null;
+                }
+            } elseif ($field->field_type === FieldType::REPEATER) {
+                $value = is_array($value) ? json_encode($value) : null;
+            } elseif ($field->field_type === FieldType::GALLERY) {
+                $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
+            }
+
+            if ($value !== null) {
+                $this->metaRepository->upsert($content->id, $fieldKey, $value);
+            }
+        }
 
         if ($contentType->has_categories) {
-            $this->saveCategories($content->id);
+            $categoryIds = $this->request->getPost('categories') ?? [];
+            $this->saveCategoryRelations($content->id, $categoryIds);
         }
 
         \CodeIgniter\Events\Events::trigger('content_created', $content->id);
 
-        return redirect()->to("/admin/contents/{$contentTypeId}")->with('success', 'İçerik başarıyla oluşturuldu.');
+        return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla oluşturuldu');
     }
 
     public function edit(int $contentTypeId, int $id)
@@ -114,28 +140,40 @@ class ContentController extends BaseController
         $this->requireAuth();
 
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
-        $content = $this->contentRepository->findById($id);
 
-        if (!$contentType || !$content) {
-            return redirect()->to('/admin/content-types')->with('error', 'İçerik bulunamadı.');
+        if (!$contentType) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $fields = $this->contentTypeFieldRepository->getByContentTypeId($contentTypeId);
-        $meta = $this->contentMetaRepository->getByContentId($id);
+        $content = $this->contentRepository->findById($id);
+
+        if (!$content || $content->content_type_id !== $contentTypeId) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $fields = $this->fieldRepository->getByContentType($contentTypeId);
+        $metas = $this->metaRepository->getAllByContentId($id);
+
+        $contentMeta = [];
+        foreach ($metas as $meta) {
+            $contentMeta[$meta->meta_key] = $meta->meta_value;
+        }
+
         $categories = [];
         $selectedCategories = [];
 
         if ($contentType->has_categories) {
-            $categories = $this->categoryRepository->getByContentTypeId($contentTypeId);
-            $relations = $this->contentCategoryModel->where('content_id', $id)->findAll();
-            $selectedCategories = array_column($relations, 'category_id');
+            $categories = $this->categoryRepository->getAll([
+                'content_type_id' => $contentTypeId
+            ]);
+            $selectedCategories = $this->getContentCategories($id);
         }
 
         return view('admin/contents/edit', [
             'contentType' => $contentType,
             'content' => $content,
             'fields' => $fields,
-            'meta' => $meta,
+            'contentMeta' => $contentMeta,
             'categories' => $categories,
             'selectedCategories' => $selectedCategories
         ]);
@@ -143,182 +181,150 @@ class ContentController extends BaseController
 
     public function update(int $contentTypeId, int $id)
     {
-        $content = $this->contentRepository->findById($id);
-
-        if (!$content) {
-            return redirect()->to("/admin/contents/{$contentTypeId}")->with('error', 'İçerik bulunamadı.');
-        }
+        $this->requireAuth();
 
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
+
+        if (!$contentType) {
+            return redirect()->back()->with('error', 'İçerik türü bulunamadı');
+        }
+
+        $content = $this->contentRepository->findById($id);
+
+        if (!$content || $content->content_type_id !== $contentTypeId) {
+            return redirect()->back()->with('error', 'İçerik bulunamadı');
+        }
 
         if (!$this->validate(ContentValidation::rules(), ContentValidation::messages())) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $contentData = [
+        $data = [
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => ContentStatus::from($this->request->getPost('status'))
+            'status' => $this->request->getPost('status')
         ];
 
-        $result = $this->contentRepository->update($id, $contentData);
-
-        if (!$result) {
-            return redirect()->back()->with('error', 'İçerik güncellenemedi.');
+        if (!$this->contentRepository->update($id, $data)) {
+            return redirect()->back()->with('error', 'İçerik güncellenemedi');
         }
 
-        $this->saveMeta($id, $contentTypeId);
+        $fields = $this->fieldRepository->getByContentType($contentTypeId);
+
+        foreach ($fields as $field) {
+            $fieldKey = $field->field_key;
+            $value = $this->request->getPost($fieldKey);
+
+            if ($field->field_type === FieldType::RELATION) {
+                $fieldOptions = $field->getFieldOptions();
+
+                if ($fieldOptions['multiple'] ?? false) {
+                    $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
+                } else {
+                    $value = $value ? (string)(int)$value : null;
+                }
+            } elseif ($field->field_type === FieldType::REPEATER) {
+                $value = is_array($value) ? json_encode($value) : null;
+            } elseif ($field->field_type === FieldType::GALLERY) {
+                $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
+            }
+
+            if ($value !== null) {
+                $this->metaRepository->upsert($id, $fieldKey, $value);
+            }
+        }
 
         if ($contentType->has_categories) {
-            $this->saveCategories($id);
+            $categoryIds = $this->request->getPost('categories') ?? [];
+            $this->saveCategoryRelations($id, $categoryIds);
         }
 
         \CodeIgniter\Events\Events::trigger('content_updated', $id);
 
-        return redirect()->to("/admin/contents/{$contentTypeId}")->with('success', 'İçerik başarıyla güncellendi.');
+        return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla güncellendi');
     }
 
     public function delete(int $contentTypeId, int $id)
     {
         $this->requireAuth();
 
-        $result = $this->contentRepository->delete($id);
+        $content = $this->contentRepository->findById($id);
 
-        if (!$result) {
-            return redirect()->back()->with('error', 'İçerik silinemedi.');
+        if (!$content || $content->content_type_id !== $contentTypeId) {
+            return redirect()->back()->with('error', 'İçerik bulunamadı');
         }
 
-        \CodeIgniter\Events\Events::trigger('content_deleted', $id);        
+        if (!$this->contentRepository->delete($id)) {
+            return redirect()->back()->with('error', 'İçerik silinemedi');
+        }
 
-        return redirect()->to("/admin/contents/{$contentTypeId}")->with('success', 'İçerik başarıyla silindi.');
+        \CodeIgniter\Events\Events::trigger('content_deleted', $id);
+
+        return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla silindi');
     }
 
-    protected function saveMeta(int $contentId, int $contentTypeId): void
+    public function getRelationOptions(int $contentTypeId)
     {
-        $fields = $this->contentTypeFieldRepository->getByContentTypeId($contentTypeId);
+        $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
-        foreach ($fields as $field) {
-            $value = $this->request->getPost($field->field_key);
-
-            if ($value !== null) {
-                $this->contentMetaRepository->upsert($contentId, $field->field_key, $value);
-            }
-        }
-    }
-
-    protected function saveCategories(int $contentId): void
-    {
-        $this->contentCategoryModel->where('content_id', $contentId)->delete();
-
-        $categories = $this->request->getPost('categories');
-
-        if (is_array($categories)) {
-            foreach ($categories as $categoryId) {
-                $this->contentCategoryModel->insert([
-                    'content_id' => $contentId,
-                    'category_id' => $categoryId
-                ]);
-            }
-        }
-    }
-
-    public function bulkAction(int $contentTypeId)
-    {
-        $action = $this->request->getPost('bulk_action');
-        $selectedIds = $this->request->getPost('selected_ids');
-
-        if (!$action || !$selectedIds || !is_array($selectedIds)) {
-            return redirect()->back()->with('error', 'Geçersiz işlem.');
+        if (!$contentType) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'İçerik türü bulunamadı'
+            ])->setStatusCode(404);
         }
 
-        $count = 0;
+        $visibleOnly = $this->request->getGet('visible_only') === '1';
 
-        switch ($action) {
-            case 'publish':
-                foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => ContentStatus::PUBLISHED])) {
-                        $count++;
-                    }
-                }
-                $message = $count . ' içerik yayınlandı.';
-                break;
-
-            case 'draft':
-                foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => ContentStatus::DRAFT])) {
-                        $count++;
-                    }
-                }
-                $message = $count . ' içerik taslağa alındı.';
-                break;
-
-            case 'archive':
-                foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->update($id, ['status' => ContentStatus::ARCHIVED])) {
-                        $count++;
-                    }
-                }
-                $message = $count . ' içerik arşivlendi.';
-                break;
-
-            case 'delete':
-                foreach ($selectedIds as $id) {
-                    if ($this->contentRepository->delete($id)) {
-                        $count++;
-                    }
-                }
-                $message = $count . ' içerik silindi.';
-                break;
-
-            default:
-                return redirect()->back()->with('error', 'Geçersiz işlem.');
-        }
-
-        return redirect()->to("/admin/contents/{$contentTypeId}")->with('success', $message);
-    }
-    
-    public function duplicate(int $contentTypeId, int $id)
-    {
-        $originalContent = $this->contentRepository->findById($id);
-
-        if (!$originalContent) {
-            return redirect()->back()->with('error', 'İçerik bulunamadı.');
-        }
-
-        $newTitle = $originalContent->title . ' (Kopya)';
-        $newSlug = generate_unique_slug($newTitle, 'contents');
-
-        $newContent = $this->contentRepository->create([
-            'content_type_id' => $originalContent->content_type_id,
-            'title' => $newTitle,
-            'slug' => $newSlug,
-            'status' => ContentStatus::DRAFT
-        ]);
-
-        if (!$newContent) {
-            return redirect()->back()->with('error', 'İçerik kopyalanamadı.');
-        }
-
-        $originalMeta = $this->contentMetaRepository->getByContentId($id);
-        foreach ($originalMeta as $meta) {
-            $this->contentMetaRepository->create([
-                'content_id' => $newContent->id,
-                'meta_key' => $meta->meta_key,
-                'meta_value' => $meta->meta_value
+        if ($visibleOnly && $contentType->visible) {
+            $contents = $this->contentRepository->getAll([
+                'content_type_id' => $contentTypeId,
+                'status' => 'published'
+            ]);
+        } else {
+            $contents = $this->contentRepository->getAll([
+                'content_type_id' => $contentTypeId
             ]);
         }
 
-        $contentType = $this->contentTypeRepository->findById($contentTypeId);
-        if ($contentType->has_categories) {
-            $relations = $this->contentCategoryModel->where('content_id', $id)->findAll();
-            foreach ($relations as $relation) {
-                $this->contentCategoryModel->insert([
-                    'content_id' => $newContent->id,
-                    'category_id' => $relation['category_id']
-                ]);
-            }
-        }
+        $options = array_map(function($content) {
+            return [
+                'id' => $content->id,
+                'title' => $content->title
+            ];
+        }, $contents);
 
-        return redirect()->to("/admin/contents/{$contentTypeId}/edit/{$newContent->id}")->with('success', 'İçerik başarıyla kopyalandı.');
-    }    
+        return $this->response->setJSON([
+            'success' => true,
+            'options' => $options
+        ]);
+    }
+
+    protected function saveCategoryRelations(int $contentId, array $categoryIds): void
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('content_categories');
+
+        $builder->where('content_id', $contentId)->delete();
+
+        foreach ($categoryIds as $categoryId) {
+            $builder->insert([
+                'content_id' => $contentId,
+                'category_id' => $categoryId
+            ]);
+        }
+    }
+
+    protected function getContentCategories(int $contentId): array
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('content_categories');
+
+        $results = $builder->select('category_id')
+            ->where('content_id', $contentId)
+            ->get()
+            ->getResultArray();
+
+        return array_column($results, 'category_id');
+    }
 }

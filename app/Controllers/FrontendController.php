@@ -2,155 +2,118 @@
 
 namespace App\Controllers;
 
-use App\Libraries\Template;
-use App\Libraries\Loop;
-use App\Repositories\Interfaces\ContentRepositoryInterface;
 use App\Repositories\Interfaces\ContentTypeRepositoryInterface;
-use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
+use App\Repositories\Interfaces\ContentRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Enums\ContentStatus;
 
 class FrontendController extends BaseController
 {
-    protected Template $template;
-    protected Loop $loop;
-    protected ContentRepositoryInterface $contentRepository;
     protected ContentTypeRepositoryInterface $contentTypeRepository;
-    protected ContentMetaRepositoryInterface $contentMetaRepository;
+    protected ContentRepositoryInterface $contentRepository;
     protected CategoryRepositoryInterface $categoryRepository;
 
     public function __construct()
     {
-        $this->template = service('template');
-        $this->loop = service('loop');
-        $this->contentRepository = service('contentRepository');
         $this->contentTypeRepository = service('contentTypeRepository');
-        $this->contentMetaRepository = service('contentMetaRepository');
+        $this->contentRepository = service('contentRepository');
         $this->categoryRepository = service('categoryRepository');
     }
 
     public function index()
     {
-        $contents = $this->contentRepository->getAll([
-            'status' => ContentStatus::PUBLISHED,
-            'limit' => 10,
-            'order_by' => 'created_at',
-            'order' => 'DESC'
-        ]);
-
-        $this->loop->setContents($contents);
-
-        $output = $this->template->render('index');
-        return $this->response->setBody($output);
+        $template = service('template');
+        return $template->render('page');
     }
 
     public function page(string $slug)
     {
         $content = $this->contentRepository->findBySlug($slug);
 
-        if (!$content || $content->status !== ContentStatus::PUBLISHED) {
-            return $this->show404();
+        if (!$content || !$content->isPublished()) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $this->template->setCurrentContent($content);
-        $this->loop->setContents([$content]);
+        $loop = service('loop');
+        $loop->setContents([$content]);
 
-        $output = $this->template->render('page', ['content' => $content]);
-        return $this->response->setBody($output);
+        $template = service('template');
+        $template->setCurrentContent($content);
+
+        return $template->render('page', ['content' => $content]);
     }
 
     public function single(string $contentTypeSlug, string $slug)
     {
         $contentType = $this->contentTypeRepository->findBySlug($contentTypeSlug);
 
-        if (!$contentType) {
-            return $this->show404();
+        if (!$contentType || !$contentType->visible) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $content = $this->contentRepository->findBySlug($slug, $contentType->id);
+        $content = $this->contentRepository->findBySlug($slug);
 
-        if (!$content || $content->status !== ContentStatus::PUBLISHED) {
-            return $this->show404();
+        if (!$content || $content->content_type_id !== $contentType->id || !$content->isPublished()) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $this->template->setCurrentContent($content);
-        $this->loop->setContents([$content]);
+        $loop = service('loop');
+        $loop->setContents([$content]);
 
-        $output = $this->template->render('single', ['content' => $content]);
-        return $this->response->setBody($output);
+        $template = service('template');
+        $template->setCurrentContent($content);
+
+        return $template->render('single', ['content' => $content, 'contentType' => $contentType]);
     }
 
     public function list(string $contentTypeSlug)
     {
         $contentType = $this->contentTypeRepository->findBySlug($contentTypeSlug);
 
-        if (!$contentType) {
-            return $this->show404();
+        if (!$contentType || !$contentType->visible) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $categoryId = $this->request->getGet('category');
-
-        if ($categoryId) {
-            $contents = $this->contentRepository->getByCategory($categoryId, [
-                'status' => ContentStatus::PUBLISHED,
-                'order_by' => 'created_at',
-                'order' => 'DESC'
-            ]);
-        } else {
-            $contents = $this->contentRepository->getByContentType($contentType->id, [
-                'status' => ContentStatus::PUBLISHED,
-                'order_by' => 'created_at',
-                'order' => 'DESC'
-            ]);
-        }
-
-        $this->template->setCurrentContent(null);
-        $this->loop->setContents($contents);
-
-        $output = $this->template->render('list', [
-            'contentType' => $contentType,
-            'contents' => $contents
+        $contents = $this->contentRepository->getAll([
+            'content_type_id' => $contentType->id,
+            'status' => ContentStatus::PUBLISHED
         ]);
-        
-        return $this->response->setBody($output);
+
+        $loop = service('loop');
+        $loop->setContents($contents);
+
+        $template = service('template');
+        return $template->render('list', ['contents' => $contents, 'contentType' => $contentType]);
     }
 
     public function category(string $contentTypeSlug, string $categorySlug)
     {
         $contentType = $this->contentTypeRepository->findBySlug($contentTypeSlug);
 
-        if (!$contentType) {
-            return $this->show404();
+        if (!$contentType || !$contentType->visible) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
         $category = $this->categoryRepository->findBySlug($categorySlug, $contentType->id);
 
         if (!$category) {
-            return $this->show404();
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $contents = $this->contentRepository->getByCategory($category->id, [
+        $contents = $this->contentRepository->getAll([
+            'content_type_id' => $contentType->id,
             'status' => ContentStatus::PUBLISHED,
-            'order_by' => 'created_at',
-            'order' => 'DESC'
+            'category_id' => $category->id
         ]);
 
-        $this->template->setCurrentContent(null);
-        $this->loop->setContents($contents);
+        $loop = service('loop');
+        $loop->setContents($contents);
 
-        $output = $this->template->render('list', [
+        $template = service('template');
+        return $template->render('list', [
+            'contents' => $contents,
             'contentType' => $contentType,
-            'category' => $category,
-            'contents' => $contents
+            'category' => $category
         ]);
-        
-        return $this->response->setBody($output);
-    }
-
-    protected function show404()
-    {
-        $this->response->setStatusCode(404);
-        $output = $this->template->render('404');
-        return $this->response->setBody($output);
     }
 }

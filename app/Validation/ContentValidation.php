@@ -9,7 +9,7 @@ class ContentValidation
     public static function rules(): array
     {
         $statusList = implode(',', ContentStatus::all());
-        
+
         return [
             'title' => 'required|max_length[255]',
             'slug' => 'required|max_length[255]',

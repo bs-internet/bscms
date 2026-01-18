@@ -8,33 +8,20 @@ use App\Enums\ContentStatus;
 class Content extends Entity
 {
     protected $datamap = [];
-    
     protected $dates = ['created_at', 'updated_at'];
-    
     protected $casts = [
-        'id' => 'integer',
-        'content_type_id' => 'integer',
+        'content_type_id' => 'int',
         'status' => 'enum[' . ContentStatus::class . ']',
-    ];
-
-    protected $attributes = [
-        'id' => null,
-        'content_type_id' => null,
-        'title' => null,
-        'slug' => null,
-        'status' => ContentStatus::DRAFT,
-        'created_at' => null,
-        'updated_at' => null,
     ];
 
     public function getStatusBadge(): string
     {
-        return $this->status instanceof ContentStatus ? $this->status->badge() : '';
+        return $this->status->badge();
     }
 
     public function getStatusLabel(): string
     {
-        return $this->status instanceof ContentStatus ? $this->status->label() : '';
+        return $this->status->label();
     }
 
     public function isPublished(): bool

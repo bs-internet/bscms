@@ -16,29 +16,31 @@ enum FieldType: string
     case FILE = 'file';
     case WYSIWYG = 'wysiwyg';
     case REPEATER = 'repeater';
+    case RELATION = 'relation';
 
     public function label(): string
     {
         return match($this) {
-            self::TEXT => 'Tek Satır Metin',
-            self::TEXTAREA => 'Çok Satır Metin',
-            self::EMAIL => 'Email',
+            self::TEXT => 'Metin',
+            self::TEXTAREA => 'Metin Alanı',
+            self::EMAIL => 'E-posta',
             self::NUMBER => 'Sayı',
-            self::SELECT => 'Açılır Liste',
+            self::SELECT => 'Seçim Listesi',
             self::CHECKBOX => 'Onay Kutusu',
-            self::RADIO => 'Radyo Buton',
-            self::IMAGE => 'Tek Görsel',
-            self::GALLERY => 'Çoklu Görsel',
+            self::RADIO => 'Radyo Düğmesi',
+            self::IMAGE => 'Görsel',
+            self::GALLERY => 'Galeri',
             self::FILE => 'Dosya',
             self::WYSIWYG => 'Zengin Metin Editörü',
-            self::REPEATER => 'Tekrarlayan Alan Grubu',
+            self::REPEATER => 'Tekrarlayan Alan',
+            self::RELATION => 'İçerik İlişkisi',
         };
     }
 
     public function hasOptions(): bool
     {
         return match($this) {
-            self::SELECT, self::RADIO, self::REPEATER => true,
+            self::SELECT, self::RADIO, self::REPEATER, self::RELATION => true,
             default => false,
         };
     }

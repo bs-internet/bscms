@@ -16,8 +16,8 @@ enum SettingGroup: string
             self::GENERAL => 'Genel Ayarlar',
             self::CONTACT => 'İletişim Bilgileri',
             self::SOCIAL => 'Sosyal Medya',
-            self::SEO => 'SEO & Analytics',
-            self::SMTP => 'Email Ayarları',
+            self::SEO => 'SEO Ayarları',
+            self::SMTP => 'E-posta Ayarları',
         };
     }
 
@@ -27,7 +27,7 @@ enum SettingGroup: string
             self::GENERAL => 'settings',
             self::CONTACT => 'phone',
             self::SOCIAL => 'share-2',
-            self::SEO => 'trending-up',
+            self::SEO => 'search',
             self::SMTP => 'mail',
         };
     }

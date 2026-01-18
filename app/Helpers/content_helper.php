@@ -1,7 +1,5 @@
 <?php
 
-use App\Libraries\Loop;
-
 if (!function_exists('have_posts')) {
     function have_posts(): bool
     {
@@ -29,7 +27,7 @@ if (!function_exists('rewind_posts')) {
 if (!function_exists('the_title')) {
     function the_title(): void
     {
-        echo get_the_title();
+        echo esc(get_the_title());
     }
 }
 
@@ -51,15 +49,14 @@ if (!function_exists('the_content')) {
 if (!function_exists('get_the_content')) {
     function get_the_content(): ?string
     {
-        $loop = service('loop');
-        return $loop->getMeta('content');
+        return get_meta('content');
     }
 }
 
 if (!function_exists('the_permalink')) {
     function the_permalink(): void
     {
-        echo get_the_permalink();
+        echo esc(get_the_permalink());
     }
 }
 
@@ -74,7 +71,7 @@ if (!function_exists('get_the_permalink')) {
 if (!function_exists('the_excerpt')) {
     function the_excerpt(int $length = 150): void
     {
-        echo get_the_excerpt($length);
+        echo esc(get_the_excerpt($length));
     }
 }
 
@@ -97,7 +94,7 @@ if (!function_exists('get_meta')) {
 if (!function_exists('the_meta')) {
     function the_meta(string $key): void
     {
-        echo get_meta($key);
+        echo esc(get_meta($key));
     }
 }
 
@@ -112,26 +109,18 @@ if (!function_exists('get_repeater')) {
 if (!function_exists('get_image')) {
     function get_image(int $mediaId, string $size = 'full'): ?string
     {
-        $mediaRepository = service('mediaRepository');
-        $media = $mediaRepository->findById($mediaId);
-        
-        if (!$media) {
-            return null;
-        }
-
-        if (strpos($media->mimetype, 'image/') === 0 && $size !== 'full') {
-            $imageProcessor = new \App\Libraries\ImageProcessor();
-            return $imageProcessor->getImageUrl($media->filepath, $size);
-        }
-
-        return base_url($media->filepath);
+        $loop = service('loop');
+        return $loop->getImage($mediaId, $size);
     }
 }
 
 if (!function_exists('the_image')) {
     function the_image(int $mediaId, string $size = 'full'): void
     {
-        echo get_image($mediaId, $size);
+        $url = get_image($mediaId, $size);
+        if ($url) {
+            echo esc($url);
+        }
     }
 }
 
@@ -140,5 +129,21 @@ if (!function_exists('get_gallery')) {
     {
         $loop = service('loop');
         return $loop->getGallery($mediaIds);
+    }
+}
+
+if (!function_exists('get_relation')) {
+    function get_relation(string $key)
+    {
+        $loop = service('loop');
+        return $loop->getRelation($key);
+    }
+}
+
+if (!function_exists('get_relations')) {
+    function get_relations(string $key): array
+    {
+        $loop = service('loop');
+        return $loop->getRelations($key);
     }
 }

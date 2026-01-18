@@ -49,6 +49,7 @@ $routes->group('admin', function($routes) {
     $routes->get('contents/(:num)/delete/(:num)', 'Admin\ContentController::delete/$1/$2');
     $routes->post('contents/(:num)/bulk-action', 'Admin\ContentController::bulkAction/$1');
     $routes->get('contents/(:num)/duplicate/(:num)', 'Admin\ContentController::duplicate/$1/$2');
+    $routes->get('contents/relation-options/(:num)', 'Admin\ContentController::getRelationOptions/$1');
 
     // Categories
     $routes->get('categories/(:num)', 'Admin\CategoryController::index/$1');

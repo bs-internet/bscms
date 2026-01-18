@@ -2,39 +2,13 @@
 
 namespace App\Libraries;
 
-use App\Repositories\Interfaces\ContentRepositoryInterface;
-use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
-use App\Repositories\Interfaces\CategoryRepositoryInterface;
-use App\Repositories\Interfaces\MediaRepositoryInterface;
-use App\Models\ContentCategoryModel;
-
 class Loop
 {
-    protected ContentRepositoryInterface $contentRepository;
-    protected ContentMetaRepositoryInterface $contentMetaRepository;
-    protected CategoryRepositoryInterface $categoryRepository;
-    protected MediaRepositoryInterface $mediaRepository;
-    protected ContentCategoryModel $contentCategoryModel;
-
     protected array $contents = [];
     protected int $currentIndex = -1;
     protected ?object $currentContent = null;
     protected array $currentMeta = [];
     protected array $currentCategories = [];
-
-    public function __construct(
-        ContentRepositoryInterface $contentRepository,
-        ContentMetaRepositoryInterface $contentMetaRepository,
-        CategoryRepositoryInterface $categoryRepository,
-        MediaRepositoryInterface $mediaRepository,
-        ContentCategoryModel $contentCategoryModel
-    ) {
-        $this->contentRepository = $contentRepository;
-        $this->contentMetaRepository = $contentMetaRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->mediaRepository = $mediaRepository;
-        $this->contentCategoryModel = $contentCategoryModel;
-    }
 
     public function setContents(array $contents): void
     {
@@ -47,18 +21,32 @@ class Loop
 
     public function havePosts(): bool
     {
-        return $this->currentIndex < (count($this->contents) - 1);
+        return ($this->currentIndex + 1) < count($this->contents);
     }
 
     public function thePost(): void
     {
-        $this->currentIndex++;
-        $this->currentContent = $this->contents[$this->currentIndex] ?? null;
-        
-        if ($this->currentContent) {
-            $this->loadMeta();
-            $this->loadCategories();
+        if (!$this->havePosts()) {
+            return;
         }
+
+        $this->currentIndex++;
+        $this->currentContent = $this->contents[$this->currentIndex];
+
+        $metaRepo = service('contentMetaRepository');
+        $metas = $metaRepo->getAllByContentId($this->currentContent->id);
+
+        $this->currentMeta = [];
+        foreach ($metas as $meta) {
+            $this->currentMeta[$meta->meta_key] = $meta->meta_value;
+        }
+
+        $categoryModel = service('contentCategoryModel');
+        $this->currentCategories = $categoryModel
+            ->select('categories.*')
+            ->join('categories', 'categories.id = content_categories.category_id')
+            ->where('content_categories.content_id', $this->currentContent->id)
+            ->findAll();
     }
 
     public function rewindPosts(): void
@@ -85,69 +73,86 @@ class Loop
             return null;
         }
 
-        return site_url($this->currentContent->slug);
+        $contentTypeRepo = service('contentTypeRepository');
+        $contentType = $contentTypeRepo->findById($this->currentContent->content_type_id);
+
+        if (!$contentType) {
+            return null;
+        }
+
+        return site_url($contentType->slug . '/' . $this->currentContent->slug);
     }
 
     public function getExcerpt(int $length = 150): ?string
     {
-        if (!$this->currentContent) {
+        $content = $this->currentMeta['content'] ?? '';
+
+        if (empty($content)) {
             return null;
         }
 
-        $content = $this->getMeta('content') ?? '';
-        
-        if (strlen($content) <= $length) {
+        $content = strip_tags($content);
+
+        if (mb_strlen($content) <= $length) {
             return $content;
         }
 
-        return substr(strip_tags($content), 0, $length) . '...';
+        return mb_substr($content, 0, $length) . '...';
     }
 
     public function getMeta(string $key)
     {
-        return $this->currentMeta[$key] ?? null;
+        $value = $this->currentMeta[$key] ?? null;
+
+        if (is_null($value)) {
+            return null;
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+
+        return $value;
     }
 
     public function getRepeater(string $key): ?array
     {
         $value = $this->getMeta($key);
-        
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+
+        if (!is_array($value)) {
+            return null;
         }
-        
-        return is_array($value) ? $value : null;
+
+        return $value;
     }
 
     public function getImage(int $mediaId, string $size = 'full'): ?string
     {
-        $media = $this->mediaRepository->findById($mediaId);
-        
+        $mediaRepo = service('mediaRepository');
+        $media = $mediaRepo->findById($mediaId);
+
         if (!$media) {
             return null;
         }
 
-        return base_url($media->filepath);
+        $imageProcessor = service('imageProcessor');
+        return $imageProcessor->getImageUrl($media->filepath, $size);
     }
 
     public function getGallery(array $mediaIds): array
     {
-        $gallery = [];
-        
+        $images = [];
+
         foreach ($mediaIds as $mediaId) {
-            $media = $this->mediaRepository->findById($mediaId);
-            if ($media) {
-                $gallery[] = [
-                    'id' => $media->id,
-                    'url' => base_url($media->filepath),
-                    'filename' => $media->filename,
-                    'mimetype' => $media->mimetype,
-                ];
+            $url = $this->getImage($mediaId);
+            if ($url) {
+                $images[] = $url;
             }
         }
-        
-        return $gallery;
+
+        return $images;
     }
 
     public function getCategories(): array
@@ -162,40 +167,60 @@ class Loop
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    protected function loadMeta(): void
+    public function getRelation(string $key)
     {
         if (!$this->currentContent) {
-            return;
+            return null;
         }
 
-        $metaItems = $this->contentMetaRepository->getByContentId($this->currentContent->id);
-        
-        $this->currentMeta = [];
-        foreach ($metaItems as $meta) {
-            $this->currentMeta[$meta->meta_key] = $meta->meta_value;
+        $metaValue = $this->currentMeta[$key] ?? null;
+
+        if (!$metaValue) {
+            return null;
         }
+
+        $decoded = json_decode($metaValue, true);
+
+        if (is_array($decoded)) {
+            $contentRepo = service('contentRepository');
+            return !empty($decoded) ? $contentRepo->findById($decoded[0]) : null;
+        }
+
+        return service('contentRepository')->findById((int)$metaValue);
     }
 
-    protected function loadCategories(): void
+    public function getRelations(string $key): array
     {
         if (!$this->currentContent) {
-            return;
+            return [];
         }
 
-        $categoryRelations = $this->contentCategoryModel
-            ->where('content_id', $this->currentContent->id)
-            ->findAll();
+        $metaValue = $this->currentMeta[$key] ?? null;
 
-        $this->currentCategories = [];
-        foreach ($categoryRelations as $relation) {
-            $category = $this->categoryRepository->findById($relation['category_id']);
-            if ($category) {
-                $this->currentCategories[] = $category;
+        if (!$metaValue) {
+            return [];
+        }
+
+        $decoded = json_decode($metaValue, true);
+
+        if (!is_array($decoded)) {
+            $decoded = [(int)$metaValue];
+        }
+
+        $contentRepo = service('contentRepository');
+        $results = [];
+
+        foreach ($decoded as $relatedId) {
+            $content = $contentRepo->findById($relatedId);
+            if ($content) {
+                $results[] = $content;
             }
         }
+
+        return $results;
     }
 }

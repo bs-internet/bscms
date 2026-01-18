@@ -14,22 +14,41 @@ class ContentMetaRepository implements ContentMetaRepositoryInterface
         $this->model = $model;
     }
 
-    public function getByContentId(int $contentId): array
+    public function getAll(array $filters = []): array
     {
-        return $this->model->where('content_id', $contentId)->findAll();
+        $builder = $this->model->builder();
+
+        if (isset($filters['content_id'])) {
+            $builder->where('content_id', $filters['content_id']);
+        }
+
+        return $builder->get()->getResult($this->model->returnType);
+    }
+
+    public function findById(int $id): ?object
+    {
+        return $this->model->find($id);
     }
 
     public function getByKey(int $contentId, string $key): ?object
     {
-        return $this->model->where('content_id', $contentId)
-                          ->where('meta_key', $key)
-                          ->first();
+        return $this->model
+            ->where('content_id', $contentId)
+            ->where('meta_key', $key)
+            ->first();
+    }
+
+    public function getAllByContentId(int $contentId): array
+    {
+        return $this->model
+            ->where('content_id', $contentId)
+            ->findAll();
     }
 
     public function create(array $data): ?object
     {
         $id = $this->model->insert($data);
-        return $id ? $this->model->find($id) : null;
+        return $id ? $this->findById($id) : null;
     }
 
     public function update(int $id, array $data): bool
@@ -40,11 +59,6 @@ class ContentMetaRepository implements ContentMetaRepositoryInterface
     public function delete(int $id): bool
     {
         return $this->model->delete($id);
-    }
-
-    public function deleteByContentId(int $contentId): bool
-    {
-        return $this->model->where('content_id', $contentId)->delete();
     }
 
     public function upsert(int $contentId, string $key, $value): bool

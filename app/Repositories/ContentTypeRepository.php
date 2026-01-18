@@ -14,9 +14,35 @@ class ContentTypeRepository implements ContentTypeRepositoryInterface
         $this->model = $model;
     }
 
-    public function getAll(): array
+    public function getAll(array $filters = []): array
     {
-        return $this->model->orderBy('name', 'ASC')->findAll();
+        $builder = $this->model->builder();
+
+        if (isset($filters['visible'])) {
+            $builder->where('visible', $filters['visible']);
+        }
+
+        $orderBy = $filters['order_by'] ?? 'name';
+        $order = $filters['order'] ?? 'ASC';
+        $builder->orderBy($orderBy, $order);
+
+        if (isset($filters['limit'])) {
+            $builder->limit($filters['limit']);
+        }
+
+        if (isset($filters['offset'])) {
+            $builder->offset($filters['offset']);
+        }
+
+        return $builder->get()->getResult($this->model->returnType);
+    }
+
+    public function getVisible(): array
+    {
+        return $this->model
+            ->where('visible', 1)
+            ->orderBy('name', 'ASC')
+            ->findAll();
     }
 
     public function findById(int $id): ?object

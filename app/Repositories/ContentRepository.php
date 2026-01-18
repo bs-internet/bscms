@@ -19,16 +19,16 @@ class ContentRepository implements ContentRepositoryInterface
     {
         $builder = $this->model->builder();
 
+        if (isset($filters['content_type_id'])) {
+            $builder->where('content_type_id', $filters['content_type_id']);
+        }
+
         if (isset($filters['status'])) {
             if ($filters['status'] instanceof ContentStatus) {
                 $builder->where('status', $filters['status']->value);
             } else {
                 $builder->where('status', $filters['status']);
             }
-        }
-
-        if (isset($filters['content_type_id'])) {
-            $builder->where('content_type_id', $filters['content_type_id']);
         }
 
         if (isset($filters['limit'])) {
@@ -51,15 +51,46 @@ class ContentRepository implements ContentRepositoryInterface
         return $this->model->find($id);
     }
 
-    public function findBySlug(string $slug, ?int $contentTypeId = null): ?object
+    public function findBySlug(string $slug): ?object
     {
-        $builder = $this->model->where('slug', $slug);
-        
-        if ($contentTypeId) {
-            $builder->where('content_type_id', $contentTypeId);
+        return $this->model->where('slug', $slug)->first();
+    }
+
+    public function findByIdWithRelations(int $id, array $relationKeys = []): ?object
+    {
+        $content = $this->findById($id);
+
+        if (!$content || empty($relationKeys)) {
+            return $content;
         }
-        
-        return $builder->first();
+
+        $metaRepo = service('contentMetaRepository');
+
+        foreach ($relationKeys as $key) {
+            $metaValue = $metaRepo->getByKey($id, $key)?->meta_value;
+
+            if (!$metaValue) {
+                $content->{$key . '_relation'} = null;
+                continue;
+            }
+
+            $decoded = json_decode($metaValue, true);
+
+            if (is_array($decoded)) {
+                $related = [];
+                foreach ($decoded as $relatedId) {
+                    $relatedContent = $this->findById($relatedId);
+                    if ($relatedContent) {
+                        $related[] = $relatedContent;
+                    }
+                }
+                $content->{$key . '_relation'} = $related;
+            } else {
+                $content->{$key . '_relation'} = $this->findById((int)$metaValue);
+            }
+        }
+
+        return $content;
     }
 
     public function create(array $data): ?object
@@ -76,40 +107,5 @@ class ContentRepository implements ContentRepositoryInterface
     public function delete(int $id): bool
     {
         return $this->model->delete($id);
-    }
-
-    public function getByContentType(int $contentTypeId, array $filters = []): array
-    {
-        $filters['content_type_id'] = $contentTypeId;
-        return $this->getAll($filters);
-    }
-
-    public function getByCategory(int $categoryId, array $filters = []): array
-    {
-        $builder = $this->model->builder();
-        $builder->join('content_categories', 'contents.id = content_categories.content_id');
-        $builder->where('content_categories.category_id', $categoryId);
-
-        if (isset($filters['status'])) {
-            if ($filters['status'] instanceof ContentStatus) {
-                $builder->where('contents.status', $filters['status']->value);
-            } else {
-                $builder->where('contents.status', $filters['status']);
-            }
-        }
-
-        if (isset($filters['limit'])) {
-            $builder->limit($filters['limit']);
-        }
-
-        if (isset($filters['offset'])) {
-            $builder->offset($filters['offset']);
-        }
-
-        $orderBy = $filters['order_by'] ?? 'contents.created_at';
-        $order = $filters['order'] ?? 'DESC';
-        $builder->orderBy($orderBy, $order);
-
-        return $builder->get()->getResult($this->model->returnType);
     }
 }

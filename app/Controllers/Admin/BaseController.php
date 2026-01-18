@@ -2,9 +2,9 @@
 
 namespace App\Controllers\Admin;
 
-use App\Controllers\BaseController as MainBaseController;
+use App\Controllers\BaseController as AppBaseController;
 
-class BaseController extends MainBaseController
+class BaseController extends AppBaseController
 {
     protected function checkAuth(): bool
     {

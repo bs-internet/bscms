@@ -13,7 +13,7 @@ enum ComponentLocationType: string
     {
         return match($this) {
             self::CONTENT_TYPE => 'İçerik Türü',
-            self::CONTENT => 'Belirli İçerik',
+            self::CONTENT => 'İçerik',
             self::CATEGORY => 'Kategori',
             self::FORM => 'Form',
         };
@@ -37,7 +37,7 @@ enum ComponentLocationType: string
     {
         return [
             self::CONTENT_TYPE->value,
-            self::CONTENT->value
+            self::CONTENT->value,
         ];
     }
 }

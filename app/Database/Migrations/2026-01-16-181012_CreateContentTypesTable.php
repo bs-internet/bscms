@@ -24,6 +24,13 @@ class CreateContentTypesTable extends Migration
                 'constraint' => 100,
                 'unique' => true,
             ],
+            'visible' => [
+                'type' => 'TINYINT',
+                'constraint' => 1,
+                'default' => 1,
+                'null' => false,
+                'after' => 'has_categories'
+            ],
             'has_seo_fields' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
