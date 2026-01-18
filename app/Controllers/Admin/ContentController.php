@@ -29,8 +29,6 @@ class ContentController extends BaseController
 
     public function index(int $contentTypeId)
     {
-        $this->requireAuth();
-
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
@@ -49,8 +47,6 @@ class ContentController extends BaseController
 
     public function create(int $contentTypeId)
     {
-        $this->requireAuth();
-
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
@@ -75,8 +71,6 @@ class ContentController extends BaseController
 
     public function store(int $contentTypeId)
     {
-        $this->requireAuth();
-
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
@@ -137,8 +131,6 @@ class ContentController extends BaseController
 
     public function edit(int $contentTypeId, int $id)
     {
-        $this->requireAuth();
-
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
@@ -181,8 +173,6 @@ class ContentController extends BaseController
 
     public function update(int $contentTypeId, int $id)
     {
-        $this->requireAuth();
-
         $contentType = $this->contentTypeRepository->findById($contentTypeId);
 
         if (!$contentType) {
@@ -246,8 +236,6 @@ class ContentController extends BaseController
 
     public function delete(int $contentTypeId, int $id)
     {
-        $this->requireAuth();
-
         $content = $this->contentRepository->findById($id);
 
         if (!$content || $content->content_type_id !== $contentTypeId) {

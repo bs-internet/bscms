@@ -32,19 +32,13 @@ class ComponentController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $components = $this->componentRepository->getAll();
-
         return view('admin/components/index', ['components' => $components]);
     }
 
     public function create()
     {
-        $this->requireAuth();
-
         $contentTypes = $this->contentTypeRepository->getAll();
-
         return view('admin/components/create', [
             'contentTypes' => $contentTypes
         ]);
@@ -86,10 +80,8 @@ class ComponentController extends BaseController
 
     public function edit(int $id)
     {
-        $this->requireAuth();
-
         $component = $this->componentRepository->findById($id);
-
+        
         if (!$component) {
             return redirect()->to('/admin/components')->with('error', 'Bileşen bulunamadı.');
         }
@@ -158,8 +150,6 @@ class ComponentController extends BaseController
 
     public function delete(int $id)
     {
-        $this->requireAuth();
-
         $result = $this->componentRepository->delete($id);
 
         if (!$result) {

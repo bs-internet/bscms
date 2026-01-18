@@ -26,8 +26,6 @@ class FormController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $forms = $this->formRepository->getAll();
 
         return view('admin/forms/index', ['forms' => $forms]);
@@ -35,8 +33,6 @@ class FormController extends BaseController
 
     public function create()
     {
-        $this->requireAuth();
-
         return view('admin/forms/create');
     }
 
@@ -64,8 +60,6 @@ class FormController extends BaseController
 
     public function edit(int $id)
     {
-        $this->requireAuth();
-
         $form = $this->formRepository->findById($id);
 
         if (!$form) {
@@ -110,8 +104,6 @@ class FormController extends BaseController
 
     public function delete(int $id)
     {
-        $this->requireAuth();
-
         $result = $this->formRepository->delete($id);
 
         if (!$result) {
@@ -123,8 +115,6 @@ class FormController extends BaseController
 
     public function submissions(int $formId)
     {
-        $this->requireAuth();
-
         $form = $this->formRepository->findById($formId);
 
         if (!$form) {
@@ -141,8 +131,6 @@ class FormController extends BaseController
 
     public function submissionDetail(int $formId, int $id)
     {
-        $this->requireAuth();
-
         $form = $this->formRepository->findById($formId);
         $submission = $this->formSubmissionRepository->findById($id);
 

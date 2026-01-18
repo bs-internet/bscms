@@ -16,8 +16,6 @@ class ContentTypeController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $contentTypes = $this->repository->getAll();
 
         return view('admin/content_types/index', [
@@ -27,15 +25,11 @@ class ContentTypeController extends BaseController
 
     public function create()
     {
-        $this->requireAuth();
-
         return view('admin/content_types/create');
     }
 
     public function store()
     {
-        $this->requireAuth();
-
         if (!$this->validate(ContentTypeValidation::rules(), ContentTypeValidation::messages())) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -59,8 +53,6 @@ class ContentTypeController extends BaseController
 
     public function edit(int $id)
     {
-        $this->requireAuth();
-
         $contentType = $this->repository->findById($id);
 
         if (!$contentType) {
@@ -74,8 +66,6 @@ class ContentTypeController extends BaseController
 
     public function update(int $id)
     {
-        $this->requireAuth();
-
         if (!$this->validate(ContentTypeValidation::rules(true, $id), ContentTypeValidation::messages())) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -97,8 +87,6 @@ class ContentTypeController extends BaseController
 
     public function delete(int $id)
     {
-        $this->requireAuth();
-
         if (!$this->repository->delete($id)) {
             return redirect()->back()->with('error', 'İçerik türü silinemedi');
         }

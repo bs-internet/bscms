@@ -18,8 +18,6 @@ class SitemapController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $sitemapPath = FCPATH . 'sitemap.xml';
         $sitemapExists = file_exists($sitemapPath);
         $lastGenerated = $sitemapExists ? date('d.m.Y H:i:s', filemtime($sitemapPath)) : null;
@@ -32,8 +30,6 @@ class SitemapController extends BaseController
 
     public function generate()
     {
-        $this->requireAuth();
-
         $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
 
         $this->addHomepage($xml);
@@ -50,8 +46,6 @@ class SitemapController extends BaseController
 
     public function view()
     {
-        $this->requireAuth();
-
         $sitemapPath = FCPATH . 'sitemap.xml';
         
         if (!file_exists($sitemapPath)) {
@@ -65,8 +59,6 @@ class SitemapController extends BaseController
 
     public function delete()
     {
-        $this->requireAuth();
-
         $sitemapPath = FCPATH . 'sitemap.xml';
         
         if (!file_exists($sitemapPath)) {

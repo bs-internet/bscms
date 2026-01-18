@@ -19,8 +19,6 @@ class MenuController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $menus = $this->menuRepository->getAll();
 
         return view('admin/menus/index', ['menus' => $menus]);
@@ -28,8 +26,6 @@ class MenuController extends BaseController
 
     public function create()
     {
-        $this->requireAuth();
-
         return view('admin/menus/create');
     }
 
@@ -56,8 +52,6 @@ class MenuController extends BaseController
 
     public function edit(int $id)
     {
-        $this->requireAuth();
-
         $menu = $this->menuRepository->findById($id);
 
         if (!$menu) {
@@ -100,8 +94,6 @@ class MenuController extends BaseController
 
     public function delete(int $id)
     {
-        $this->requireAuth();
-
         $result = $this->menuRepository->delete($id);
 
         if (!$result) {

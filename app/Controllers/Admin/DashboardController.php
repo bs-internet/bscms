@@ -18,8 +18,6 @@ class DashboardController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $totalContents = count($this->contentRepository->getAll());
         $publishedContents = count($this->contentRepository->getAll(['status' => 'published']));
         $draftContents = count($this->contentRepository->getAll(['status' => 'draft']));

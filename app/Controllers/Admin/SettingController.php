@@ -15,8 +15,6 @@ class SettingController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-
         $settings = $this->settingRepository->getAll();
 
         $groupedSettings = [];
@@ -29,8 +27,6 @@ class SettingController extends BaseController
 
     public function update()
     {
-        $this->requireAuth();
-
         $postData = $this->request->getPost();
 
         foreach ($postData as $key => $value) {
