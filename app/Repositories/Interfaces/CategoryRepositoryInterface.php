@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 interface CategoryRepositoryInterface
 {
     public function getByContentTypeId(int $contentTypeId): array;
+    public function getAll(array $filters = []): array;
     public function findById(int $id): ?object;
     public function findBySlug(string $slug, int $contentTypeId): ?object;
     public function getChildren(int $parentId): array;

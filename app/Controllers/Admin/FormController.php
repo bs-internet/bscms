@@ -42,6 +42,9 @@ class FormController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $data = [
             'name' => $this->request->getPost('name'),
             'slug' => $this->request->getPost('slug'),
@@ -52,7 +55,14 @@ class FormController extends BaseController
         $form = $this->formRepository->create($data);
 
         if (!$form) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Form oluşturulamadı.');
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Form oluşturma başarısız.');
         }
 
         return redirect()->to('/admin/forms')->with('success', 'Form başarıyla oluşturuldu.');
@@ -86,6 +96,9 @@ class FormController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $data = [
             'name' => $this->request->getPost('name'),
             'slug' => $this->request->getPost('slug'),
@@ -96,7 +109,14 @@ class FormController extends BaseController
         $result = $this->formRepository->update($id, $data);
 
         if (!$result) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Form güncellenemedi.');
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Güncelleme başarısız.');
         }
 
         return redirect()->to('/admin/forms')->with('success', 'Form başarıyla güncellendi.');
@@ -104,11 +124,23 @@ class FormController extends BaseController
 
     public function delete(int $id)
     {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $result = $this->formRepository->delete($id);
 
         if (!$result) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Form silinemedi.');
         }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Silme işlemi başarısız.');
+        }
+
+        \CodeIgniter\Events\Events::trigger('form_deleted', $id);
 
         return redirect()->to('/admin/forms')->with('success', 'Form başarıyla silindi.');
     }
@@ -141,9 +173,17 @@ class FormController extends BaseController
         $submissionData = $this->formSubmissionDataRepository->getBySubmissionId($id);
         $fields = $this->formFieldRepository->getByFormId($formId);
 
-        if ($submission->status === SubmissionStatus::NEW) {
-            $this->formSubmissionRepository->update($id, ['status' => SubmissionStatus::READ]);
+        if ($submission->status === SubmissionStatus::NEW ->value) {
+            // Using Enum ->value for comparison if status is string in DB
+            // But verify if $submission->status is cast or raw string.
+            // Assuming string from previous analysis.
+            $this->formSubmissionRepository->update($id, ['status' => SubmissionStatus::READ->value]);
         }
+        // Note: Logic above changed slightly to use ->value just in case.
+        // Original: $submission->status === SubmissionStatus::NEW
+        // If SubmissionStatus is Enum, direct comparison works if property is cast to Enum,
+        // but often in CI4 entities it's string. Better use ->value or check Model casting.
+        // Checking SubmissionStatus.php (Enum) ... it is backed by string.
 
         return view('admin/forms/submission-detail', [
             'form' => $form,

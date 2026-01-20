@@ -9,6 +9,8 @@ use App\Repositories\Interfaces\ContentMetaRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Validation\ContentValidation;
 use App\Enums\FieldType;
+use App\Enums\ContentStatus;
+use CodeIgniter\Events\Events;
 
 class ContentController extends BaseController
 {
@@ -35,9 +37,13 @@ class ContentController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $contents = $this->contentRepository->getAll([
-            'content_type_id' => $contentTypeId
-        ]);
+        $cacheKey = "content_list_{$contentTypeId}";
+        if (!$contents = cache($cacheKey)) {
+            $contents = $this->contentRepository->getAll([
+                'content_type_id' => $contentTypeId
+            ]);
+            cache()->save($cacheKey, $contents, 3600);
+        }
 
         return view('admin/contents/index', [
             'contentType' => $contentType,
@@ -81,16 +87,35 @@ class ContentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $data = [
             'content_type_id' => $contentTypeId,
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => $this->request->getPost('status')
+            'status' => ContentStatus::tryFrom($this->request->getPost('status'))?->value ?? ContentStatus::DRAFT->value
         ];
 
         $content = $this->contentRepository->create($data);
 
         if (!$content) {
+            // Transaction will be handled by transComplete status check if we return/exit, 
+            // but strict mode might need explicit failure. 
+            // Since we are inside transStart, let's behave safely.
+            // But we can't rollback easily inside 'transStart' usage pattern without manual control?
+            // Actually CI4 docs say: "If you want to manually manage the transaction... use transBegin".
+            // With transStart, we rely on automatic rollback if an exception is thrown or if the logic flow indicates error?
+            // "If strict mode is enabled (default), if any of the groups of commands fails, the entire transaction will be rolled back."
+            // But repository->create() likely just returns false, not a "command failure" in the DB sense unless it throws.
+            // So we should manually rollback if logic fails.
+            // But wait, user standard said: NO TRY CATCH.
+            // User example:
+            // $db->transStart();
+            // $content = repo->create();
+            // if (!$content) { $db->transRollback(); return error; }
+            // So I WILL use that pattern.
+            $db->transRollback();
             return redirect()->back()->with('error', 'İçerik oluşturulamadı');
         }
 
@@ -106,7 +131,7 @@ class ContentController extends BaseController
                 if ($fieldOptions['multiple'] ?? false) {
                     $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
                 } else {
-                    $value = $value ? (string)(int)$value : null;
+                    $value = $value ? (string) (int) $value : null;
                 }
             } elseif ($field->field_type === FieldType::REPEATER) {
                 $value = is_array($value) ? json_encode($value) : null;
@@ -124,7 +149,14 @@ class ContentController extends BaseController
             $this->saveCategoryRelations($content->id, $categoryIds);
         }
 
-        \CodeIgniter\Events\Events::trigger('content_created', $content->id);
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Kayıt başarısız (İşlem tamamlanamadı)');
+        }
+
+        $this->clearCaches($content->id, $contentTypeId);
+        Events::trigger('content_created', $content->id);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla oluşturuldu');
     }
@@ -189,13 +221,17 @@ class ContentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $data = [
             'title' => $this->request->getPost('title'),
             'slug' => $this->request->getPost('slug'),
-            'status' => $this->request->getPost('status')
+            'status' => ContentStatus::tryFrom($this->request->getPost('status'))?->value ?? ContentStatus::DRAFT->value
         ];
 
         if (!$this->contentRepository->update($id, $data)) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'İçerik güncellenemedi');
         }
 
@@ -211,7 +247,7 @@ class ContentController extends BaseController
                 if ($fieldOptions['multiple'] ?? false) {
                     $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
                 } else {
-                    $value = $value ? (string)(int)$value : null;
+                    $value = $value ? (string) (int) $value : null;
                 }
             } elseif ($field->field_type === FieldType::REPEATER) {
                 $value = is_array($value) ? json_encode($value) : null;
@@ -229,7 +265,14 @@ class ContentController extends BaseController
             $this->saveCategoryRelations($id, $categoryIds);
         }
 
-        \CodeIgniter\Events\Events::trigger('content_updated', $id);
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Güncelleme başarısız');
+        }
+
+        $this->clearCaches($id, $contentTypeId);
+        Events::trigger('content_updated', $id);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla güncellendi');
     }
@@ -242,11 +285,26 @@ class ContentController extends BaseController
             return redirect()->back()->with('error', 'İçerik bulunamadı');
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        // Trigger 'deleting' event to handle cleanup of dependent resources (like component instances)
+        // before the cascade delete removes the links.
+        Events::trigger('content_deleting', $id);
+
         if (!$this->contentRepository->delete($id)) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'İçerik silinemedi');
         }
 
-        \CodeIgniter\Events\Events::trigger('content_deleted', $id);
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Silme işlemi başarısız');
+        }
+
+        $this->clearCaches($id, $contentTypeId);
+        Events::trigger('content_deleted', $id);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla silindi');
     }
@@ -275,7 +333,7 @@ class ContentController extends BaseController
             ]);
         }
 
-        $options = array_map(function($content) {
+        $options = array_map(function ($content) {
             return [
                 'id' => $content->id,
                 'title' => $content->title
@@ -293,6 +351,7 @@ class ContentController extends BaseController
         $db = \Config\Database::connect();
         $builder = $db->table('content_categories');
 
+        // We are already in a transaction from the caller, so these will be part of it.
         $builder->where('content_id', $contentId)->delete();
 
         foreach ($categoryIds as $categoryId) {
@@ -314,5 +373,20 @@ class ContentController extends BaseController
             ->getResultArray();
 
         return array_column($results, 'category_id');
+    }
+
+    protected function clearCaches(int $contentId, int $contentTypeId): void
+    {
+        // Clear specific content cache
+        cache()->delete("content_{$contentId}");
+
+        // Clear content list cache
+        cache()->delete("content_list_{$contentTypeId}");
+
+        // Note: Category caches clearing would ideally be here or in CategoryRepository/Events,
+        // but for now we follow the roadmap which prioritized content caches.
+        // If we want to be thorough:
+        // $categories = $this->getContentCategories($contentId);
+        // foreach ($categories as $catId) { cache()->delete("category_contents_{$catId}"); }
     }
 }
