@@ -19,6 +19,8 @@ $routes->post('form/submit/(:segment)', 'FormController::submit/$1');
 
 // Admin Routes
 $routes->group('admin', function($routes) {
+    $routes->get('/', 'Admin\DashboardController::index');
+    
     // Auth
     $routes->get('login', 'Admin\AuthController::login');
     $routes->post('login', 'Admin\AuthController::authenticate');
