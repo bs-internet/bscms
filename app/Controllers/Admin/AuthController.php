@@ -14,6 +14,11 @@ class AuthController extends BaseController
         $this->userRepository = service('userRepository');
     }
 
+    private function checkAuth()
+    {
+        return session()->has('user_id');
+    }
+
     public function login()
     {
         if ($this->checkAuth()) {

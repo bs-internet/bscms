@@ -17,8 +17,17 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function getByContentTypeId(int $contentTypeId): array
     {
         return $this->model->where('content_type_id', $contentTypeId)
-                          ->orderBy('sort_order', 'ASC')
-                          ->findAll();
+            ->orderBy('sort_order', 'ASC')
+            ->findAll();
+    }
+
+    public function getAll(array $filters = []): array
+    {
+        if (isset($filters['content_type_id'])) {
+            $this->model->where('content_type_id', $filters['content_type_id']);
+        }
+
+        return $this->model->orderBy('sort_order', 'ASC')->findAll();
     }
 
     public function findById(int $id): ?object
@@ -29,15 +38,15 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function findBySlug(string $slug, int $contentTypeId): ?object
     {
         return $this->model->where('slug', $slug)
-                          ->where('content_type_id', $contentTypeId)
-                          ->first();
+            ->where('content_type_id', $contentTypeId)
+            ->first();
     }
 
     public function getChildren(int $parentId): array
     {
         return $this->model->where('parent_id', $parentId)
-                          ->orderBy('sort_order', 'ASC')
-                          ->findAll();
+            ->orderBy('sort_order', 'ASC')
+            ->findAll();
     }
 
     public function create(array $data): ?object
