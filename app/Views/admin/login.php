@@ -46,6 +46,13 @@
             <p class="subtitle">Yönetim paneline erişmek için giriş yapın.</p>
 
             <!-- Error Messages -->
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert-box" style="background-color: #d1fae5; border-color: #a7f3d0; color: #065f46;">
+                   <i class="fa-solid fa-check-circle"></i>
+                    <span><?= session()->getFlashdata('success') ?></span>
+                </div>
+            <?php endif; ?>
+
             <?php if (session()->getFlashdata('error')): ?>
                 <div class="alert-box">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -72,10 +79,25 @@
                         value="<?= old('username') ?>" autocomplete="username">
                 </div>
 
-                <div class="input-group">
-                    <label for="password">Şifre</label>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required
-                        autocomplete="current-password">
+                <div class="input-group password-group">
+                    <div class="input-header">
+                        <label for="password">Şifre</label>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="password" id="password" name="password" placeholder="••••••••" required
+                            autocomplete="current-password">
+                        <button type="button" class="toggle-password" aria-label="Şifreyi Göster">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <label class="remember-me">
+                        <input type="checkbox" name="remember" id="remember">
+                        <span>Beni Hatırla</span>
+                    </label>
+                    <a href="/admin/forgot-password" class="forgot-password">Şifrenizi mi unuttunuz?</a>
                 </div>
 
                 <button type="submit" class="btn-login">
@@ -89,6 +111,11 @@
                 </a>
             </div>
         </div>
+    </div>
+
+    <!-- Auth JS -->
+    <script src="/assets/admin/js/auth.js"></script>
+    </div>
     </div>
 
 </body>

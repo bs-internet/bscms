@@ -13,7 +13,7 @@ class UserModel extends Model
     protected $returnType = User::class;
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['username', 'email', 'password'];
+    protected $allowedFields = ['username', 'email', 'password', 'remember_token', 'remember_expires_at', 'reset_token', 'reset_expires_at'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

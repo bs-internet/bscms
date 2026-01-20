@@ -6,8 +6,8 @@ use CodeIgniter\Config\BaseConfig;
 
 class Email extends BaseConfig
 {
-    public string $fromEmail  = '';
-    public string $fromName   = '';
+    public string $fromEmail = '';
+    public string $fromName = '';
     public string $recipients = '';
 
     /**
@@ -118,4 +118,29 @@ class Email extends BaseConfig
      * Enable notify message from server
      */
     public bool $DSN = false;
+    public function __construct()
+    {
+        parent::__construct();
+
+        // 1. Try Loading from ENV
+        $this->protocol = env('email.protocol', 'smtp');
+        $this->SMTPHost = env('email.SMTPHost', '127.0.0.1');
+        $this->SMTPUser = env('email.SMTPUser', '');
+        $this->SMTPPass = env('email.SMTPPass', '');
+        $this->SMTPPort = (int) env('email.SMTPPort', 2525);
+        $this->SMTPCrypto = env('email.SMTPCrypto', 'tls');
+        $this->fromEmail = env('email.fromEmail', 'admin@example.com');
+        $this->fromName = env('email.fromName', 'BSCMS Admin');
+        $this->mailType = 'html';
+
+        /**
+         * TODO: Logic to override with DB settings
+         * Example:
+         * $settings = service('settingsRepository')->getGroup('email');
+         * if ($settings['smtp_active'] ?? false) {
+         *    $this->SMTPHost = $settings['smtp_host'];
+         *    // ...
+         * }
+         */
+    }
 }

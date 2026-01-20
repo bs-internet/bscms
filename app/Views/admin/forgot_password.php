@@ -22,8 +22,28 @@
         <h1>Şifrenizi mi unuttunuz?</h1>
         <p>E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
 
-        <form>
-            <input type="email" placeholder="admin@example.com" required>
+        <!-- Error Messages -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert-box">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>
+                    <?= session()->getFlashdata('error') ?>
+                </span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert-box" style="background-color: #d1fae5; border-color: #a7f3d0; color: #065f46;">
+                <i class="fa-solid fa-check-circle"></i>
+                <span>
+                    <?= session()->getFlashdata('success') ?>
+                </span>
+            </div>
+        <?php endif; ?>
+
+        <form action="/admin/forgot-password" method="post">
+            <?= csrf_field() ?>
+            <input type="email" name="email" placeholder="admin@example.com" required>
             <button type="submit">Sıfırlama Bağlantısı Gönder</button>
         </form>
 
