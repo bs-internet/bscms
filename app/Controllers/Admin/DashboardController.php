@@ -28,6 +28,6 @@ class DashboardController extends BaseController
             'draftContents' => $draftContents
         ];
 
-        return view('admin/dashboard', $data);
+        return view('admin/dashboard/index', $data);
     }
 }

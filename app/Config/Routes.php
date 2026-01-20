@@ -7,23 +7,19 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->setDefaultNamespace('App\Controllers');
 
-// Frontend Routes
-$routes->get('/', 'FrontendController::index');
-$routes->get('page/(:segment)', 'FrontendController::page/$1');
-$routes->get('(:segment)/(:segment)', 'FrontendController::single/$1/$2');
-$routes->get('(:segment)', 'FrontendController::list/$1');
-$routes->get('(:segment)/category/(:segment)', 'FrontendController::category/$1/$2');
-// Sitemap Routes
-$routes->get('sitemap.xml', 'SitemapController::index');
-// Form Routes
-$routes->post('form/submit/(:segment)', 'FormController::submit/$1');
-
-// Admin Routes
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (ÖNCE!)
+|--------------------------------------------------------------------------
+| Not: Frontend catch-all rotalar en altta olmalı; yoksa /admin ve /admin/login
+| gibi URL'ler frontend'e düşüp 404 verir.
+*/
 $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($routes) {
     // Auth (No Filter)
     $routes->get('login', 'AuthController::login');
     $routes->post('login', 'AuthController::authenticate');
     $routes->get('logout', 'AuthController::logout');
+    $routes->get('forgot-password', 'AuthController::forgotPassword');
 
     // Protected Admin Routes
     $routes->group('', ['filter' => 'admin_auth'], function ($routes) {
@@ -126,3 +122,31 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
         $routes->get('sitemap/delete', 'SitemapController::delete');
     });
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Frontend Routes
+|--------------------------------------------------------------------------
+| Spesifik rotalar önce, catch-all en sonda.
+*/
+$routes->get('/', 'FrontendController::index');
+$routes->get('page/(:segment)', 'FrontendController::page/$1');
+
+// Sitemap Routes
+$routes->get('sitemap.xml', 'SitemapController::index');
+
+// Form Routes
+$routes->post('form/submit/(:segment)', 'FormController::submit/$1');
+
+// Category (spesifik) -> catch-all'dan önce olmalı
+$routes->get('(:segment)/category/(:segment)', 'FrontendController::category/$1/$2');
+
+/*
+|--------------------------------------------------------------------------
+| Catch-all (EN SON!)
+|--------------------------------------------------------------------------
+| Bunlar en üstte olursa admin dahil her şeyi yakalayıp 404'e düşürür.
+*/
+$routes->get('(:segment)/(:segment)', 'FrontendController::single/$1/$2');
+$routes->get('(:segment)', 'FrontendController::list/$1');
