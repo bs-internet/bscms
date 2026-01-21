@@ -4,7 +4,14 @@ namespace App\Controllers\Admin;
 
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Validation\AuthValidation;
+use App\Libraries\RateLimiter;
 
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication, password reset, and session management
+ * for the admin panel.
+ */
 class AuthController extends BaseController
 {
     protected $userRepository;
@@ -14,11 +21,23 @@ class AuthController extends BaseController
         $this->userRepository = service('userRepository');
     }
 
-    private function checkAuth()
+    /**
+     * Check if user is authenticated
+     * 
+     * @return bool
+     */
+    private function checkAuth(): bool
     {
-        return session()->has('user_id');
+        return session()->has('admin_logged_in') && session()->get('admin_logged_in') === true;
     }
 
+    /**
+     * Display login page
+     * 
+     * Redirects to dashboard if already authenticated
+     * 
+     * @return \CodeIgniter\HTTP\RedirectResponse|string
+     */
     public function login()
     {
         if ($this->checkAuth()) {
@@ -37,18 +56,50 @@ class AuthController extends BaseController
 
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
+        $ipAddress = $this->request->getIPAddress();
+        $userAgent = $this->request->getUserAgent()->getAgentString();
+
+        // Rate Limiting Check
+        $rateLimiter = new RateLimiter();
+        $rateLimitKey = RateLimiter::loginKey($username, $ipAddress);
+
+        if ($rateLimiter->tooManyAttempts($rateLimitKey)) {
+            $seconds = $rateLimiter->availableIn($rateLimitKey);
+            $minutes = ceil($seconds / 60);
+
+            log_message('warning', "Rate limit exceeded for username: {$username} from IP: {$ipAddress}");
+
+            return redirect()->back()->with(
+                'error',
+                "Çok fazla başarısız deneme. Lütfen {$minutes} dakika sonra tekrar deneyin."
+            );
+        }
 
         $user = $this->userRepository->findByUsername($username);
 
         if (!$user) {
+            // Log failed attempt
+            $this->logLoginAttempt(null, $username, $ipAddress, $userAgent, false);
+            $rateLimiter->hit($rateLimitKey);
+
             log_message('error', 'Login failed: User not found for username: ' . $username);
             return redirect()->back()->with('error', 'Kullanıcı adı veya şifre hatalı.');
         }
 
         if (!password_verify($password, $user->password)) {
-            log_message('error', 'Login failed: Password mismatch for username: ' . $username . '. Hash: ' . $user->password);
+            // Log failed attempt
+            $this->logLoginAttempt($user->id, $username, $ipAddress, $userAgent, false);
+            $rateLimiter->hit($rateLimitKey);
+
+            log_message('error', 'Login failed: Password mismatch for username: ' . $username);
             return redirect()->back()->with('error', 'Kullanıcı adı veya şifre hatalı.');
         }
+
+        // Successful login - clear rate limiter
+        $rateLimiter->clear($rateLimitKey);
+
+        // Log successful attempt
+        $this->logLoginAttempt($user->id, $username, $ipAddress, $userAgent, true);
 
         // Remember Me Logic
         if ($this->request->getPost('remember')) {
@@ -64,14 +115,35 @@ class AuthController extends BaseController
             set_cookie('admin_remember_token', $user->id . ':' . $token, 30 * 24 * 60 * 60); // 30 days
         }
 
+        // Session regeneration for security
         $session = session();
+        $session->regenerate();
+
         $session->set([
             'admin_logged_in' => true,
             'admin_user_id' => $user->id,
-            'admin_username' => $user->username
+            'admin_username' => $user->username,
+            'admin_ip' => $ipAddress,
+            'admin_user_agent' => $userAgent
         ]);
 
         return redirect()->to('/admin/dashboard');
+    }
+
+    /**
+     * Log login attempt to database
+     */
+    private function logLoginAttempt(?int $userId, string $username, string $ip, string $userAgent, bool $success): void
+    {
+        $db = \Config\Database::connect();
+        $db->table('login_attempts')->insert([
+            'user_id' => $userId,
+            'username' => $username,
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+            'success' => $success ? 1 : 0,
+            'attempted_at' => date('Y-m-d H:i:s')
+        ]);
     }
 
     public function forgotPassword()
@@ -127,20 +199,7 @@ class AuthController extends BaseController
             return redirect()->to('/admin/login')->with('error', 'Geçersiz şifre sıfırlama bağlantısı.');
         }
 
-        // Verify token (Raw query because UserRepository might not have findByToken yet, checking implementation...)
-        // Ideally we add findByResetToken to repo, but standard findOne logic works if we query directly or add method.
-        // Let's assume we need to find user by token. Since repo interface is strict, I'll use Model directly here for speed or add to repo.
-        // Let's verify token via Repository if possible.
-        // UserRepository Interface has no 'findByResetToken'. I'll fetch user logic differently or just add it.
-        // For now, I'll iterate or use model. Let's use Model instance from repository if public (it's protected).
-        // I will add a verifyResetToken method to AuthController for now that does a raw check via user class.
-
-        $db = \Config\Database::connect();
-        $user = $db->table('users')
-            ->where('reset_token', $token)
-            ->where('reset_expires_at >', date('Y-m-d H:i:s'))
-            ->get()
-            ->getRow();
+        $user = $this->userRepository->findByValidResetToken($token);
 
         if (!$user) {
             return redirect()->to('/admin/login')->with('error', 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı.');
@@ -163,20 +222,11 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Şifre en az 6 karakter olmalıdır.');
         }
 
-        $db = \Config\Database::connect();
-        $user = $db->table('users')
-            ->where('reset_token', $token)
-            ->where('reset_expires_at >', date('Y-m-d H:i:s'))
-            ->get()
-            ->getRow();
+        $user = $this->userRepository->findByValidResetToken($token);
 
         if (!$user) {
             return redirect()->to('/admin/login')->with('error', 'Geçersiz işlem.');
         }
-
-        // Update Password
-        // Use Repository to ensure hashing logic in Model is triggered? 
-        // Or Model update. Repository->update($id, data) uses Model->save/update which triggers callbacks.
 
         $this->userRepository->update($user->id, [
             'password' => $password,
@@ -184,7 +234,7 @@ class AuthController extends BaseController
             'reset_expires_at' => null
         ]);
 
-        return redirect()->to('/admin/login')->with('success', 'Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.'); // Flash success needs handling in login view
+        return redirect()->to('/admin/login')->with('success', 'Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.');
     }
 
     public function logout()

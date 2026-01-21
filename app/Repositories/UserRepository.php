@@ -34,6 +34,19 @@ class UserRepository implements UserRepositoryInterface
         return $this->model->where('email', $email)->first();
     }
 
+    public function findByResetToken(string $token): ?object
+    {
+        return $this->model->where('reset_token', $token)->first();
+    }
+
+    public function findByValidResetToken(string $token): ?object
+    {
+        return $this->model
+            ->where('reset_token', $token)
+            ->where('reset_expires_at >', date('Y-m-d H:i:s'))
+            ->first();
+    }
+
     public function create(array $data): ?object
     {
         $id = $this->model->insert($data);

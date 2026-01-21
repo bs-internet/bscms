@@ -48,7 +48,7 @@
             <!-- Error Messages -->
             <?php if (session()->getFlashdata('success')): ?>
                 <div class="alert-box" style="background-color: #d1fae5; border-color: #a7f3d0; color: #065f46;">
-                   <i class="fa-solid fa-check-circle"></i>
+                    <i class="fa-solid fa-check-circle"></i>
                     <span><?= session()->getFlashdata('success') ?></span>
                 </div>
             <?php endif; ?>
@@ -76,7 +76,7 @@
                 <div class="input-group">
                     <label for="username">Kullanıcı Adı</label>
                     <input type="text" id="username" name="username" placeholder="Örn. admin" required
-                        value="<?= old('username') ?>" autocomplete="username">
+                        value="<?= old('username') ?>" autocomplete="username" aria-required="true" aria-describedby="username-help">
                 </div>
 
                 <div class="input-group password-group">
@@ -85,8 +85,8 @@
                     </div>
                     <div style="position: relative;">
                         <input type="password" id="password" name="password" placeholder="••••••••" required
-                            autocomplete="current-password">
-                        <button type="button" class="toggle-password" aria-label="Şifreyi Göster">
+                            autocomplete="current-password" aria-required="true" aria-describedby="password-help">
+                        <button type="button" class="toggle-password" aria-label="Şifreyi Göster/Gizle" tabindex="-1">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
@@ -94,14 +94,17 @@
 
                 <div class="form-actions">
                     <label class="remember-me">
-                        <input type="checkbox" name="remember" id="remember">
+                        <input type="checkbox" name="remember" id="remember" aria-label="Beni hatırla">
                         <span>Beni Hatırla</span>
                     </label>
                     <a href="/admin/forgot-password" class="forgot-password">Şifrenizi mi unuttunuz?</a>
                 </div>
 
-                <button type="submit" class="btn-login">
-                    Giriş Yap
+                <button type="submit" class="btn-login" id="loginButton">
+                    <span class="btn-text">Giriş Yap</span>
+                    <span class="btn-spinner" style="display: none;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Giriş yapılıyor...
+                    </span>
                 </button>
             </form>
 

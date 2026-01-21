@@ -13,6 +13,20 @@ class AdminAuth implements FilterInterface
         $session = session();
 
         if ($session->has('admin_logged_in') && $session->get('admin_logged_in') === true) {
+            // Session Hijacking Protection: Validate User-Agent
+            $currentUserAgent = $request->getServer('HTTP_USER_AGENT') ?? '';
+            $sessionUserAgent = $session->get('admin_user_agent');
+
+            if ($sessionUserAgent && $currentUserAgent !== $sessionUserAgent) {
+                log_message('warning', 'Session hijacking attempt detected. User-Agent mismatch for user: ' . $session->get('admin_username'));
+
+                $session->destroy();
+                helper('cookie');
+                delete_cookie('admin_remember_token');
+
+                return redirect()->to('/admin/login')->with('error', 'Güvenlik nedeniyle oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.');
+            }
+
             return;
         }
 
@@ -36,10 +50,13 @@ class AdminAuth implements FilterInterface
                     $user->remember_expires_at > date('Y-m-d H:i:s')
                 ) {
                     // Valid Token - Login User
+                    $session->regenerate();
                     $session->set([
                         'admin_logged_in' => true,
                         'admin_user_id' => $user->id,
-                        'admin_username' => $user->username
+                        'admin_username' => $user->username,
+                        'admin_ip' => $request->getIPAddress(),
+                        'admin_user_agent' => $request->getServer('HTTP_USER_AGENT') ?? ''
                     ]);
                     return;
                 }
