@@ -1,0 +1,72 @@
+/* Custom Styles */
+
+/* Prose (İçerik formatı) */
+.prose {
+    color: #374151;
+    line-height: 1.75;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+    color: #111827;
+    font-weight: 700;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+.prose h1 { font-size: 2.25em; }
+.prose h2 { font-size: 1.875em; }
+.prose h3 { font-size: 1.5em; }
+.prose h4 { font-size: 1.25em; }
+
+.prose p {
+    margin-bottom: 1.25em;
+}
+
+.prose ul, .prose ol {
+    padding-left: 1.5em;
+    margin-bottom: 1.25em;
+}
+
+.prose li {
+    margin-bottom: 0.5em;
+}
+
+.prose a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.prose a:hover {
+    color: #1d4ed8;
+}
+
+.prose img {
+    border-radius: 0.5rem;
+    margin: 2em 0;
+}
+
+.prose blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1em;
+    font-style: italic;
+    color: #6b7280;
+}
+
+/* Line clamp */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus states */
+a:focus, button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
