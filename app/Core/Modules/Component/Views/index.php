@@ -4,12 +4,12 @@
 
 <div class="grid">
     <div>
-        <h1>Bileşenler (Components)</h1>
-        <small>Sayfa ve içerikler için tekrar kullanılabilir bloklar.</small>
+        <h1><?= lang('Component.title') ?></h1>
+        <small><?= lang('Component.component_management') ?></small>
     </div>
     <div style="text-align: right;">
-        <a href="/App\Core\Modules\Component\Views\create" role="button" class="primary">
-            <i class="fa-solid fa-plus"></i> Yeni Bileşen
+        <a href="/admin/components/create" role="button" class="primary">
+            <i class="fa-solid fa-plus"></i> <?= lang('Component.new_component') ?>
         </a>
     </div>
 </div>
@@ -19,17 +19,17 @@
         <table>
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">İsim</th>
-                    <th scope="col">Kod (Key)</th>
+                    <th scope="col"><?= lang('Component.id') ?></th>
+                    <th scope="col"><?= lang('Component.component_title') ?></th>
+                    <th scope="col"><?= lang('Component.component_key') ?></th>
                     <th scope="col">Global?</th>
-                    <th scope="col" style="text-align: right;">İşlemler</th>
+                    <th scope="col" style="text-align: right;"><?= lang('Component.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <!-- Mock Data or Empty State as Controller not fully read but structure implied -->
                 <tr>
-                    <td colspan="5" style="text-align: center;">Kayıt bulunamadı.</td>
+                    <td colspan="5" style="text-align: center;"><?= lang('Component.no_records') ?></td>
                 </tr>
             </tbody>
         </table>

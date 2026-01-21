@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Şifreyi Sıfırla | BSCMS</title>
+    <title><?= lang('Auth.reset_password_title') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,8 +19,8 @@
         <div style="margin-bottom: 1.5rem; font-size: 2rem; color: var(--primary);">
             <i class="fa-solid fa-key"></i>
         </div>
-        <h1>Yeni Şifre Belirle</h1>
-        <p>Lütfen yeni şifrenizi giriniz.</p>
+        <h1><?= lang('Auth.reset_password_head') ?></h1>
+        <p><?= lang('Auth.reset_password_desc') ?></p>
 
         <!-- Error Messages -->
         <?php if (session()->getFlashdata('error')): ?>
@@ -50,7 +50,8 @@
 
             <div class="input-group password-group">
                 <div style="position: relative;">
-                    <input type="password" name="password" placeholder="Yeni Şifre" required class="mb-2">
+                    <input type="password" name="password" placeholder="<?= lang('Auth.new_password') ?>" required
+                        class="mb-2">
                     <button type="button" class="toggle-password" aria-label="Şifreyi Göster">
                         <i class="fa-regular fa-eye"></i>
                     </button>
@@ -59,18 +60,19 @@
 
             <div class="input-group password-group">
                 <div style="position: relative;">
-                    <input type="password" name="password_confirm" placeholder="Yeni Şifre (Tekrar)" required>
+                    <input type="password" name="password_confirm"
+                        placeholder="<?= lang('Auth.new_password_confirm') ?>" required>
                     <button type="button" class="toggle-password" aria-label="Şifreyi Göster">
                         <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit">Şifreyi Güncelle</button>
+            <button type="submit"><?= lang('Auth.update_password') ?></button>
         </form>
 
-        <a href="/App\Core\Modules\Auth\Views\login" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Giriş'e Dön
+        <a href="/admin/login" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Auth.back_to_login') ?>
         </a>
     </div>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Şifremi Unuttum | BSCMS</title>
+    <title><?= lang('Auth.forgot_password_title') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,8 +19,8 @@
         <div style="margin-bottom: 1.5rem; font-size: 2rem; color: var(--primary);">
             <i class="fa-solid fa-lock"></i>
         </div>
-        <h1>Şifrenizi mi unuttunuz?</h1>
-        <p>E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
+        <h1><?= lang('Auth.forgot_password') ?></h1>
+        <p><?= lang('Auth.forgot_password_desc') ?></p>
 
         <!-- Error Messages -->
         <?php if (session()->getFlashdata('error')): ?>
@@ -44,11 +44,11 @@
         <form action="/admin/forgot-password" method="post">
             <?= csrf_field() ?>
             <input type="email" name="email" placeholder="admin@example.com" required>
-            <button type="submit">Sıfırlama Bağlantısı Gönder</button>
+            <button type="submit"><?= lang('Auth.send_reset_link') ?></button>
         </form>
 
-        <a href="/App\Core\Modules\Auth\Views\login" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Giriş'e Dön
+        <a href="/admin/login" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Auth.back_to_login') ?>
         </a>
     </div>
 </body>

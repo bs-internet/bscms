@@ -4,11 +4,11 @@
 
 <div class="grid">
     <div>
-        <h1>Yeni Menü Ekle</h1>
+        <h1><?= lang('Menu.new_menu') ?></h1>
     </div>
     <div style="text-align: right;">
         <a href="/admin/menus" role="button" class="secondary outline">
-            <i class="fa-solid fa-arrow-left"></i> Geri Dön
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Admin.back') ?>
         </a>
     </div>
 </div>
@@ -19,24 +19,24 @@
 
         <div class="grid">
             <div>
-                <label for="name">Menü İsmi</label>
+                <label for="name"><?= lang('Menu.menu_title') ?></label>
                 <input type="text" id="name" name="name" required value="<?= old('name') ?>"
                     placeholder="Örn: Ana Menü">
 
-                <label for="location">Konum (Location)</label>
+                <label for="location"><?= lang('Menu.menu_key') ?></label>
                 <input type="text" id="location" name="location" required value="<?= old('location') ?>"
                     placeholder="header_menu">
-                <small>Temada menüyü çağırmak için kullanılacak kod.</small>
+                <small><?= lang('Menu.menu_help') ?></small>
 
                 <button type="submit" class="primary" style="margin-top: 1rem;">
-                    <i class="fa-solid fa-save"></i> Kaydet
+                    <i class="fa-solid fa-save"></i> <?= lang('Admin.save') ?>
                 </button>
             </div>
 
             <div>
                 <article class="secondary-box">
-                    <header><strong>Bilgi</strong></header>
-                    <p>Menüyü oluşturduktan sonra düzenleme ekranından menü öğelerini (linkleri) ekleyebilirsiniz.</p>
+                    <header><strong><?= lang('Admin.info') ?></strong></header>
+                    <p><?= lang('Menu.menu_links_help') ?></p>
                 </article>
             </div>
         </div>

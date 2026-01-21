@@ -4,33 +4,32 @@
 
 <div class="grid">
     <div>
-        <h1>
-            <?= esc($contentType->title) ?>
-        </h1>
+        <h1><?= lang('Content.contents_of_type', [esc($contentType->title)]) ?></h1>
     </div>
     <div style="text-align: right;">
-        <a href="/App\Core\Modules\Content\Views\contents\<?= $contentType->id ?>/create" role="button" class="primary">
-            <i class="fa-solid fa-plus"></i> Yeni Ekle
+        <a href="/admin/contents/<?= $contentType->id ?>/create" role="button" class="primary">
+            <i class="fa-solid fa-plus"></i> <?= lang('Admin.add_new') ?>
         </a>
     </div>
 </div>
 
 <article>
     <div class="grid">
-        <input type="search" name="search" placeholder="İçerik ara..." hx-get="/App\Core\Modules\Content\Views\contents\<?= $contentType->id ?>"
-            hx-trigger="keyup changed delay:500ms" hx-target="#contents-table" hx-select="#contents-table">
+        <input type="search" name="search" placeholder="<?= lang('Admin.search') ?>..."
+            hx-get="/admin/contents/<?= $contentType->id ?>" hx-trigger="keyup changed delay:500ms"
+            hx-target="#contents-table" hx-select="#contents-table">
     </div>
 
     <figure>
         <table id="contents-table">
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Başlık</th>
-                    <th scope="col">Slug</th>
-                    <th scope="col">Durum</th>
-                    <th scope="col">Tarih</th>
-                    <th scope="col" style="text-align: right;">İşlemler</th>
+                    <th scope="col"><?= lang('Content.id') ?></th>
+                    <th scope="col"><?= lang('Content.title') ?></th>
+                    <th scope="col"><?= lang('Content.content_type_slug') ?></th>
+                    <th scope="col"><?= lang('Content.status') ?></th>
+                    <th scope="col"><?= lang('Admin.date') ?></th>
+                    <th scope="col" style="text-align: right;"><?= lang('Content.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -59,9 +58,9 @@
                                     default => ''
                                 };
                                 $statusLabel = match ($content->status) {
-                                    'published' => 'Yayında',
-                                    'draft' => 'Taslak',
-                                    'archived' => 'Arşiv',
+                                    'published' => lang('Content.published'),
+                                    'draft' => lang('Content.not_published'),
+                                    'archived' => lang('Content.archived'),
                                     default => $content->status
                                 };
                                 ?>
@@ -74,12 +73,12 @@
                             </td>
                             <td style="text-align: right;">
                                 <div role="group">
-                                    <a href="/App\Core\Modules\Content\Views\contents\<?= $contentType->id ?>/edit/<?= $content->id ?>" role="button"
+                                    <a href="/admin/contents/<?= $contentType->id ?>/edit/<?= $content->id ?>" role="button"
                                         class="secondary outline btn-sm">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <a href="#" hx-get="/App\Core\Modules\Content\Views\contents\<?= $contentType->id ?>/delete/<?= $content->id ?>"
-                                        hx-confirm="Bu içeriği silmek istediğinize emin misiniz?" role="button"
+                                    <a href="#" hx-get="/admin/contents/<?= $contentType->id ?>/delete/<?= $content->id ?>"
+                                        hx-confirm="<?= lang('Content.delete_confirm') ?>" role="button"
                                         class="contrast outline btn-sm">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>

@@ -4,36 +4,36 @@
 
 <div class="grid">
     <div>
-        <h1>Yeni Bileşen</h1>
+        <h1><?= lang('Component.new_component') ?></h1>
     </div>
     <div style="text-align: right;">
         <a href="/admin/components" role="button" class="secondary outline">
-            <i class="fa-solid fa-arrow-left"></i> Geri Dön
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Admin.back') ?>
         </a>
     </div>
 </div>
 
 <article>
-    <form action="/App\Core\Modules\Component\Views\store" method="post">
+    <form action="/admin/components/store" method="post">
         <?= csrf_field() ?>
 
         <div class="grid">
             <div style="grid-column: span 2;">
-                <label for="name">Bileşen İsmi</label>
+                <label for="name"><?= lang('Component.component_title') ?></label>
                 <input type="text" id="name" name="name" required value="<?= old('name') ?>"
                     placeholder="Örn: Manset Slider">
 
-                <label for="component_key">Kod (Key)</label>
+                <label for="component_key"><?= lang('Component.component_key') ?></label>
                 <input type="text" id="component_key" name="component_key" required value="<?= old('component_key') ?>"
                     placeholder="hero_slider">
 
                 <label>
                     <input type="checkbox" name="is_global" value="1" <?= old('is_global') ? 'checked' : '' ?>>
-                    Global Bileşen (Tüm sayfalarda aynı veri kullanılır)
+                    <?= lang('Component.is_global_help') ?>
                 </label>
 
                 <button type="submit" class="primary" style="margin-top: 1rem;">
-                    <i class="fa-solid fa-save"></i> Kaydet
+                    <i class="fa-solid fa-save"></i> <?= lang('Admin.save') ?>
                 </button>
             </div>
         </div>

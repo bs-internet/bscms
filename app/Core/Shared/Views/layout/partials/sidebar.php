@@ -1,12 +1,12 @@
 <nav class="sidebar-nav">
     <ul>
         <li>
-            <a href="/App\Core\Modules\System\Views\dashboard\index" class="<?= url_is('App\Core\Modules\System\Views\dashboard\index') ? 'active' : '' ?>">
-                <i class="fa-solid fa-chart-line"></i> Dashboard
+            <a href="/admin/dashboard" class="<?= url_is('admin/dashboard') ? 'active' : '' ?>">
+                <i class="fa-solid fa-chart-line"></i> <?= lang('Admin.dashboard') ?>
             </a>
         </li>
 
-        <li><small>İÇERİK YÖNETİMİ</small></li>
+        <li><small><?= lang('Admin.content_management') ?></small></li>
 
         <?php
         // We need to fetch content types here. 
@@ -20,46 +20,47 @@
 
         <?php foreach ($contentTypes as $ct): ?>
             <li>
-                <a href="/admin/content-type/<?= $ct->id ?>/contents" class="<?= url_is("admin/content-type/{$ct->id}*") ? 'active' : '' ?>">
+                <a href="/admin/content-type/<?= $ct->id ?>/contents"
+                    class="<?= url_is("admin/content-type/{$ct->id}*") ? 'active' : '' ?>">
                     <i class="fa-regular fa-file-lines"></i>
                     <?= esc($ct->title) ?>
                 </a>
             </li>
         <?php endforeach; ?>
 
-        <li><small>MODÜLLER</small></li>
+        <li><small><?= lang('Admin.modules') ?></small></li>
 
         <li>
             <a href="/admin/categories" class="<?= url_is('admin/categories*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-tags"></i> Kategoriler
+                <i class="fa-solid fa-tags"></i> <?= lang('Admin.categories') ?>
             </a>
         </li>
         <li>
             <a href="/admin/forms" class="<?= url_is('admin/forms*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-inbox"></i> Formlar
+                <i class="fa-solid fa-inbox"></i> <?= lang('Admin.forms') ?>
             </a>
         </li>
         <li>
             <a href="/admin/menus" class="<?= url_is('admin/menus*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-bars"></i> Menüler
+                <i class="fa-solid fa-bars"></i> <?= lang('Admin.menus') ?>
             </a>
         </li>
         <li>
-            <a href="/App\Core\Modules\Media\Views\index" class="<?= url_is('App\Core\Modules\Media\Views\index*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-images"></i> Medya
+            <a href="/admin/media" class="<?= url_is('admin/media*') ? 'active' : '' ?>">
+                <i class="fa-solid fa-images"></i> <?= lang('Admin.media') ?>
             </a>
         </li>
 
-        <li><small>SİSTEM</small></li>
+        <li><small><?= lang('Admin.system') ?></small></li>
 
         <li>
-            <a href="/App\Core\Modules\System\Views\settings\index" class="<?= url_is('App\Core\Modules\System\Views\settings\index*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-gear"></i> Ayarlar
+            <a href="/admin/settings" class="<?= url_is('admin/settings*') ? 'active' : '' ?>">
+                <i class="fa-solid fa-gear"></i> <?= lang('Admin.settings') ?>
             </a>
         </li>
         <li>
             <a href="/admin/content-types" class="<?= url_is('admin/content-types*') ? 'active' : '' ?>">
-                <i class="fa-solid fa-code"></i> İçerik Türleri
+                <i class="fa-solid fa-code"></i> <?= lang('Admin.content_types') ?>
             </a>
         </li>
     </ul>

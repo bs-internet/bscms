@@ -4,11 +4,11 @@
 
 <div class="grid">
     <div>
-        <h1>Yeni İçerik Türü</h1>
+        <h1><?= lang('Content.new_content_type') ?></h1>
     </div>
     <div style="text-align: right;">
         <a href="/admin/content-types" role="button" class="secondary outline">
-            <i class="fa-solid fa-arrow-left"></i> Geri Dön
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Admin.back') ?>
         </a>
     </div>
 </div>
@@ -19,38 +19,38 @@
 
         <div class="grid">
             <div style="grid-column: span 2;">
-                <label for="name">İsim</label>
+                <label for="name"><?= lang('Content.content_type_title') ?></label>
                 <input type="text" id="name" name="name" required value="<?= old('name') ?>"
                     placeholder="Örn: Blog Yazıları">
 
-                <label for="slug">Slug</label>
+                <label for="slug"><?= lang('Content.content_type_slug') ?></label>
                 <input type="text" id="slug" name="slug" required value="<?= old('slug') ?>" placeholder="blog">
 
                 <fieldset>
-                    <legend>Özellikler</legend>
+                    <legend><?= lang('Content.features') ?></legend>
                     <label>
                         <input type="checkbox" name="has_categories" value="1" <?= old('has_categories') ? 'checked' : '' ?>>
-                        Kategorileri olsun
+                        <?= lang('Content.category_support') ?>
                     </label>
                     <label>
                         <input type="checkbox" name="has_seo_fields" value="1" <?= old('has_seo_fields') ? 'checked' : '' ?>>
-                        SEO alanları otomatik eklensin
+                        <?= lang('Content.seo_support') ?>
                     </label>
                     <label>
                         <input type="checkbox" name="visible" value="1" <?= old('visible', true) ? 'checked' : '' ?>>
-                        Admin menüde göster
+                        <?= lang('Content.show_in_menu') ?>
                     </label>
                 </fieldset>
 
                 <button type="submit" class="primary" style="margin-top: 1rem;">
-                    <i class="fa-solid fa-save"></i> Kaydet
+                    <i class="fa-solid fa-save"></i> <?= lang('Admin.save') ?>
                 </button>
             </div>
 
             <div>
                 <article class="secondary-box">
-                    <header><strong>Bilgi</strong></header>
-                    <p>Bu türü oluşturduktan sonra "Düzenle" diyerek özel alanlar (Form Fields) ekleyebilirsiniz.</p>
+                    <header><strong><?= lang('Content.info') ?></strong></header>
+                    <p><?= lang('Content.fields_description') ?></p>
                 </article>
             </div>
         </div>

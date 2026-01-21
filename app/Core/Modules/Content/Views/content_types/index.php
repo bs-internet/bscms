@@ -4,12 +4,12 @@
 
 <div class="grid">
     <div>
-        <h1>İçerik Türleri</h1>
-        <small>Sistemdeki içerik yapılarını (Blog, Haber vb.) yönetin.</small>
+        <h1><?= lang('Content.content_types') ?></h1>
+        <small><?= lang('Content.description') ?></small>
     </div>
     <div style="text-align: right;">
         <a href="/admin/content-types/create" role="button" class="primary">
-            <i class="fa-solid fa-plus"></i> Yeni Tür Ekle
+            <i class="fa-solid fa-plus"></i> <?= lang('Content.new_content_type') ?>
         </a>
     </div>
 </div>
@@ -19,17 +19,17 @@
         <table>
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">İsim (Name)</th>
-                    <th scope="col">Slug</th>
-                    <th scope="col">Özellikler</th>
-                    <th scope="col" style="text-align: right;">İşlemler</th>
+                    <th scope="col"><?= lang('Content.id') ?></th>
+                    <th scope="col"><?= lang('Content.content_type_title') ?></th>
+                    <th scope="col"><?= lang('Content.content_type_slug') ?></th>
+                    <th scope="col"><?= lang('Admin.status') ?></th>
+                    <th scope="col" style="text-align: right;"><?= lang('Content.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($contentTypes)): ?>
                     <tr>
-                        <td colspan="5" style="text-align: center;">Kayıt bulunamadı.</td>
+                        <td colspan="5" style="text-align: center;"><?= lang('Content.no_records') ?></td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($contentTypes as $type): ?>

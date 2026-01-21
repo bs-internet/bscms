@@ -4,12 +4,12 @@
 
 <div class="grid">
     <div>
-        <h1>Menüler</h1>
-        <small>Site menülerini yönetin.</small>
+        <h1><?= lang('Menu.title') ?></h1>
+        <small><?= lang('Menu.menu_management') ?></small>
     </div>
     <div style="text-align: right;">
         <a href="/admin/menus/create" role="button" class="primary">
-            <i class="fa-solid fa-plus"></i> Yeni Menü
+            <i class="fa-solid fa-plus"></i> <?= lang('Menu.new_menu') ?>
         </a>
     </div>
 </div>
@@ -19,16 +19,16 @@
         <table>
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Menü İsmi</th>
-                    <th scope="col">Konum (Location)</th>
-                    <th scope="col" style="text-align: right;">İşlemler</th>
+                    <th scope="col"><?= lang('Menu.id') ?></th>
+                    <th scope="col"><?= lang('Menu.menu_title') ?></th>
+                    <th scope="col"><?= lang('Menu.menu_key') ?></th>
+                    <th scope="col" style="text-align: right;"><?= lang('Menu.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($menus)): ?>
                     <tr>
-                        <td colspan="4" style="text-align: center;">Kayıt bulunamadı.</td>
+                        <td colspan="4" style="text-align: center;"><?= lang('Menu.no_records') ?></td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($menus as $menu): ?>
@@ -46,7 +46,7 @@
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
                                     <a href="#" hx-get="/admin/menus/delete/<?= $menu->id ?>"
-                                        hx-confirm="Bu menüyü silmek istediğinize emin misiniz?" role="button"
+                                        hx-confirm="<?= lang('Menu.delete_confirm') ?>" role="button"
                                         class="contrast outline btn-sm">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>

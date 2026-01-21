@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Giriş | BSCMS Admin</title>
+    <title><?= lang('Auth.login_title') ?></title>
 
     <!-- Fonts: Inter for that clean SaaS look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,17 +33,17 @@
 
         <div class="brand-quote">
             <blockquote>
-                "İçerik yönetiminde basitlik, en yüksek mühendisliktir."
+                "<?= lang('Auth.quote') ?? 'İçerik yönetiminde basitlik, en yüksek mühendisliktir.' ?>"
             </blockquote>
-            <footer>— BSCMS Yönetim Paneli</footer>
+            <footer>— <?= lang('Admin.copyright') ?></footer>
         </div>
     </div>
 
     <!-- Right Panel: Login Form -->
     <div class="split-right">
         <div class="login-wrapper">
-            <h1>Hoşgeldiniz</h1>
-            <p class="subtitle">Yönetim paneline erişmek için giriş yapın.</p>
+            <h1><?= lang('Auth.welcome_back') ?></h1>
+            <p class="subtitle"><?= lang('Auth.login_subtitle') ?></p>
 
             <!-- Error Messages -->
             <?php if (session()->getFlashdata('success')): ?>
@@ -70,18 +70,19 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/App\Core\Modules\Auth\Views\login" method="post">
+            <form action="/admin/login" method="post">
                 <?= csrf_field() ?>
 
                 <div class="input-group">
-                    <label for="username">Kullanıcı Adı</label>
+                    <label for="username"><?= lang('Auth.username') ?></label>
                     <input type="text" id="username" name="username" placeholder="Örn. admin" required
-                        value="<?= old('username') ?>" autocomplete="username" aria-required="true" aria-describedby="username-help">
+                        value="<?= old('username') ?>" autocomplete="username" aria-required="true"
+                        aria-describedby="username-help">
                 </div>
 
                 <div class="input-group password-group">
                     <div class="input-header">
-                        <label for="password">Şifre</label>
+                        <label for="password"><?= lang('Auth.password') ?></label>
                     </div>
                     <div style="position: relative;">
                         <input type="password" id="password" name="password" placeholder="••••••••" required
@@ -94,23 +95,24 @@
 
                 <div class="form-actions">
                     <label class="remember-me">
-                        <input type="checkbox" name="remember" id="remember" aria-label="Beni hatırla">
-                        <span>Beni Hatırla</span>
+                        <input type="checkbox" name="remember" id="remember"
+                            aria-label="<?= lang('Auth.remember_me') ?>">
+                        <span><?= lang('Auth.remember_me') ?></span>
                     </label>
-                    <a href="/admin/forgot-password" class="forgot-password">Şifrenizi mi unuttunuz?</a>
+                    <a href="/admin/forgot-password" class="forgot-password"><?= lang('Auth.forgot_password') ?></a>
                 </div>
 
                 <button type="submit" class="btn-login" id="loginButton">
-                    <span class="btn-text">Giriş Yap</span>
+                    <span class="btn-text"><?= lang('Auth.login_button') ?></span>
                     <span class="btn-spinner" style="display: none;">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Giriş yapılıyor...
+                        <i class="fa-solid fa-spinner fa-spin"></i> <?= lang('Auth.logging_in') ?>
                     </span>
                 </button>
             </form>
 
             <div class="back-link">
                 <a href="/">
-                    <i class="fa-solid fa-arrow-left"></i> Siteye Geri Dön
+                    <i class="fa-solid fa-arrow-left"></i> <?= lang('Auth.back_to_site') ?>
                 </a>
             </div>
         </div>

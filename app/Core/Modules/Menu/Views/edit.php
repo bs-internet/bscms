@@ -4,13 +4,13 @@
 
 <div class="grid">
     <div>
-        <h1>Menü Düzenle:
+        <h1><?= lang('Menu.edit_menu') ?>:
             <?= esc($menu->name) ?>
         </h1>
     </div>
     <div style="text-align: right;">
         <a href="/admin/menus" role="button" class="secondary outline">
-            <i class="fa-solid fa-arrow-left"></i> Geri Dön
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Admin.back') ?>
         </a>
     </div>
 </div>
@@ -18,28 +18,28 @@
 <div class="grid">
     <!-- Menu Settings -->
     <article>
-        <header><strong>Ayarlar</strong></header>
+        <header><strong><?= lang('Admin.settings') ?></strong></header>
         <form action="/admin/menus/update/<?= $menu->id ?>" method="post">
             <?= csrf_field() ?>
 
-            <label for="name">Menü İsmi</label>
+            <label for="name"><?= lang('Menu.menu_title') ?></label>
             <input type="text" id="name" name="name" required value="<?= old('name', $menu->name) ?>">
 
-            <label for="location">Konum</label>
+            <label for="location"><?= lang('Menu.menu_key') ?></label>
             <input type="text" id="location" name="location" required value="<?= old('location', $menu->location) ?>">
 
-            <button type="submit" class="primary" style="width: 100%;">Güncelle</button>
+            <button type="submit" class="primary" style="width: 100%;"><?= lang('Admin.update') ?></button>
         </form>
     </article>
 
     <!-- Menu Items (Placeholder for Sortable Nested List) -->
     <article style="grid-column: span 2;">
-        <header><strong>Menü Öğeleri (Linkler)</strong></header>
+        <header><strong><?= lang('Menu.links') ?></strong></header>
 
         <div
             style="text-align: center; padding: 2rem; border: 2px dashed var(--pico-muted-border-color); color: var(--pico-muted-color);">
             <i class="fa-solid fa-list-check fa-2x"></i><br>
-            Menü Öğesi Yönetimi (Sürükle & Bırak) Yakında...
+            <?= lang('Menu.menu_item_management_soon') ?>
         </div>
 
         <!-- Future implementation: List existing items, Add Item form -->

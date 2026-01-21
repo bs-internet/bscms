@@ -6,15 +6,15 @@
     <div class="col-full">
         <article class="card">
             <header>
-                <span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px;" class="text-muted"></i> Son
-                    Aktiviteler</span>
+                <span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px;" class="text-muted"></i>
+                    <?= lang('System.recent_activities') ?></span>
             </header>
             <table>
                 <thead>
                     <tr>
-                        <th width="20%">Kullanıcı</th>
-                        <th width="50%">İşlem</th>
-                        <th width="30%" style="text-align: right;">Zaman</th>
+                        <th width="20%"><?= lang('System.user') ?></th>
+                        <th width="50%"><?= lang('System.action') ?></th>
+                        <th width="30%" style="text-align: right;"><?= lang('System.time') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,8 +28,8 @@
                                 <span class="font-medium">Admin</span>
                             </div>
                         </td>
-                        <td>'Hakkımızda' sayfasını güncelledi.</td>
-                        <td style="text-align: right;" class="text-muted">2 saat önce</td>
+                        <td><?= lang('System.updated_page', ['Hakkımızda']) ?></td>
+                        <td style="text-align: right;" class="text-muted"><?= lang('Admin.hours_ago', [2]) ?></td>
                     </tr>
                     <tr>
                         <td>
@@ -41,8 +41,8 @@
                                 <span class="font-medium">Admin</span>
                             </div>
                         </td>
-                        <td>Yeni kategori ekledi: <strong>Teknoloji</strong></td>
-                        <td style="text-align: right;" class="text-muted">5 saat önce</td>
+                        <td><?= lang('System.added_category', ['Teknoloji']) ?></td>
+                        <td style="text-align: right;" class="text-muted"><?= lang('Admin.hours_ago', [5]) ?></td>
                     </tr>
                 </tbody>
             </table>

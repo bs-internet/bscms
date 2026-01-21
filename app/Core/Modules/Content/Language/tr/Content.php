@@ -1,0 +1,50 @@
+<?php
+
+return [
+    // Content Types
+    'content_types' => 'İçerik Tipleri',
+    'new_content_type' => 'Yeni İçerik Tipi',
+    'edit_content_type' => 'İçerik Tipini Düzenle',
+    'content_type_title' => 'Başlık',
+    'content_type_slug' => 'Slug',
+    'content_type_icon' => 'İkon',
+    'is_hierarchical' => 'Hiyerarşik (Kategorili mi?)',
+    'has_categories' => 'Kategoriler Var mı?',
+    'description' => 'Açıklama',
+    'features' => 'Özellikler',
+    'category_support' => 'Kategorileri olsun',
+    'seo_support' => 'SEO alanları otomatik eklensin',
+    'show_in_menu' => 'Admin menüde göster',
+    'info' => 'Bilgi',
+    'fields_description' => 'Bu türü oluşturduktan sonra "Düzenle" diyerek özel alanlar (Form Fields) ekleyebilirsiniz.',
+    'delete_type_confirm' => 'Bu içerik türünü silmek istediğinize emin misiniz? Buna bağlı TÜM içerikler silinecektir!',
+
+    // Contents
+    'contents' => 'İçerikler',
+    'contents_of_type' => '{0} Listesi',
+    'new_content' => 'Yeni {0}',
+    'edit_content' => '{0} Düzenle',
+    'title' => 'Başlık',
+    'summary' => 'Özet',
+    'content_body' => 'İçerik Metni',
+    'status' => 'Durum',
+    'published_at' => 'Yayınlanma Tarihi',
+    'author' => 'Yazar',
+    'category' => 'Kategori',
+    'tags' => 'Etiketler',
+    'featured_image' => 'Öne Çıkan Görsel',
+    'meta_title' => 'Meta Başlığı',
+    'meta_description' => 'Meta Açıklaması',
+    'meta_keywords' => 'Meta Anahtar Kelimeleri',
+    'not_published' => 'Taslak',
+    'published' => 'Yayında',
+    'archived' => 'Arşivlenmiş',
+
+    // Common
+    'id' => 'ID',
+    'actions' => 'İşlemler',
+    'no_records' => 'Kayıt bulunamadı.',
+    'delete_confirm' => 'Bu içeriği silmek istediğinize emin misiniz?',
+    'save_success' => 'İçerik başarıyla kaydedildi.',
+    'delete_success' => 'İçerik başarıyla silindi.',
+];

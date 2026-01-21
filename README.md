@@ -8,6 +8,7 @@ BSCMS, CodeIgniter 4 tabanlı, tamamen modüler ve eklenti (plugin) destekli bir
 - **Eklenti Desteği**: Gelişmiş `Hook` ve `Event` sistemi sayesinde sisteme dışarıdan eklentiler dahil edilebilir.
 - **Taşınabilir Veritabanı**: Migrations ve Seeders dosyaları modül bazlıdır, modüllerle birlikte taşınabilir.
 - **Modüler Asset Yönetimi**: Her modülün kendine ait CSS/JS dosyaları vardır ve tek bir komutla yayınlanabilir.
+- **Çoklu Dil Desteği (Localization)**: Tüm modüller `tr` ve `en` dillerini destekler, gelişmiş dil dosyası yapısına sahiptir.
 - **Gelişmiş Hook Sistemi**: `HookManager` ile aksiyon (Action) ve filtre (Filter) desteği.
 
 ## Proje Yapısı
@@ -22,6 +23,7 @@ app/
 │   │   │   ├── Models/
 │   │   │   ├── Database/ (Migrations, Seeds)
 │   │   │   ├── Assets/ (CSS, JS, Images)
+│   │   │   ├── Language/ (tr, en)
 │   │   │   └── Views/
 │   └── Shared/ (Ortak Kütüphaneler, Helperlar, Temel Sınıflar)
 └── Plugins/ (Dışarıdan eklenen modüller/eklentiler)
@@ -31,8 +33,15 @@ app/
 
 1. Depoyu klonlayın.
 2. `composer install` komutunu çalıştırın.
-3. `.env` dosyasını oluşturun ve veritabanı ayarlarınızı yapın.
-4. Veritabanı tablolarını oluşturun:
+3. `env.example` dosyasını `.env` olarak kopyalayın ve bilgilerinizi düzenleyin:
+   ```bash
+   cp env.example .env
+   ```
+4. Uygulama anahtarını (Encryption Key) oluşturun:
+   ```bash
+   php spark key:generate
+   ```
+5. Veritabanı tablolarını oluşturun:
    ```bash
    php spark migrate
    ```
@@ -46,6 +55,13 @@ app/
    ```bash
    php spark assets:publish
    ```
+
+## Varsayılan Giriş Bilgileri
+
+Yönetim paneline erişmek için (AdminSeeder sonrası):
+- **URL**: `/admin`
+- **Email**: `admin@admin.com`
+- **Şifre**: `123456`
 
 ## Özel CLI Komutları
 

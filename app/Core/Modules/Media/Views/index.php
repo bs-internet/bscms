@@ -4,8 +4,8 @@
 
 <div class="grid">
     <div>
-        <h1>Medya Kütüphanesi</h1>
-        <small>Toplam Boyut:
+        <h1><?= lang('Media.title') ?></h1>
+        <small><?= lang('Admin.total_size') ?>:
             <?= $totalSizeFormatted ?>
         </small>
     </div>
@@ -19,7 +19,7 @@
 
 <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
     <?php if (empty($media)): ?>
-        <p>Henüz dosya yüklenmemiş.</p>
+        <p><?= lang('Media.no_files') ?></p>
     <?php else: ?>
         <?php foreach ($media as $item): ?>
             <article style="padding: 0; overflow: hidden; position: relative; group">
@@ -38,9 +38,8 @@
                     <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;">
                         <?= esc($item->filename) ?>
                     </span>
-                    <a href="#" hx-get="/App\Core\Modules\Media\Views\index/delete/<?= $item->id ?>"
-                        hx-confirm="Bu dosyayı silmek istediğinize emin misiniz?" class="contrast"
-                        style="color: var(--pico-del-color);">
+                    <a href="#" hx-get="/admin/media/delete/<?= $item->id ?>" hx-confirm="<?= lang('Media.delete_confirm') ?>"
+                        class="contrast" style="color: var(--pico-del-color);">
                         <i class="fa-solid fa-trash"></i>
                     </a>
                 </footer>
@@ -57,7 +56,7 @@
             formData.append('file', file);
         }
 
-        fetch('/App\Core\Modules\Media\Views\index/upload', {
+        fetch('/admin/media/upload', {
             method: 'POST',
             body: formData,
             headers: {

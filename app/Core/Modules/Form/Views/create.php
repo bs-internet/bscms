@@ -4,38 +4,38 @@
 
 <div class="grid">
     <div>
-        <h1>Yeni Form Oluştur</h1>
+        <h1><?= lang('Form.new_form') ?></h1>
     </div>
     <div style="text-align: right;">
         <a href="/admin/forms" role="button" class="secondary outline">
-            <i class="fa-solid fa-arrow-left"></i> Geri Dön
+            <i class="fa-solid fa-arrow-left"></i> <?= lang('Admin.back') ?>
         </a>
     </div>
 </div>
 
 <article>
-    <form action="/App\Core\Modules\Form\Views/store" method="post">
+    <form action="/admin/forms/store" method="post">
         <?= csrf_field() ?>
 
         <div class="grid">
             <div style="grid-column: span 2;">
-                <label for="title">Form Başlığı</label>
+                <label for="title"><?= lang('Form.form_title') ?></label>
                 <input type="text" id="title" name="title" required value="<?= old('title') ?>"
-                    placeholder="İletişim Formu">
+                    placeholder="<?= lang('Form.form_title') ?>">
 
-                <label for="form_key">Form Kodu (Key)</label>
+                <label for="form_key"><?= lang('Form.form_key') ?></label>
                 <input type="text" id="form_key" name="form_key" required value="<?= old('form_key') ?>"
                     placeholder="iletisim_formu">
-                <small>Bu kodu sitenizde formu çağırmak için kullanacaksınız.</small>
+                <small><?= lang('Form.form_help') ?></small>
             </div>
 
             <div>
                 <article class="secondary-box">
-                    <header><strong>Bilgi</strong></header>
-                    <p>Formu oluşturduktan sonra düzenleme ekranından form alanlarını (inputları) ekleyebilirsiniz.</p>
+                    <header><strong><?= lang('Admin.info') ?></strong></header>
+                    <p><?= lang('Form.form_fields_help') ?></p>
 
                     <button type="submit" class="primary" style="width: 100%;">
-                        <i class="fa-solid fa-save"></i> Oluştur
+                        <i class="fa-solid fa-save"></i> <?= lang('Admin.create') ?>
                     </button>
                 </article>
             </div>
