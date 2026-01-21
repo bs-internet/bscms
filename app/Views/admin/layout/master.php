@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 
     <!-- Custom Admin CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/admin/css/admin.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/admin/css/admin.css') ?>?v=<?= time() ?>">
 
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,41 +22,41 @@
 <body>
 
     <aside id="sidebar">
-        <a href="/admin" class="sidebar-brand">
-            <i class="fa-solid fa-layer-group"></i> BSCMS
-        </a>
+        <div class="sidebar-header">
+            <a href="/admin" class="sidebar-brand">
+                <i class="fa-solid fa-shapes"></i> BSCMS
+            </a>
+        </div>
 
         <?= $this->include('admin/layout/partials/sidebar') ?>
     </aside>
 
     <main id="main-content">
-        <header class="container-fluid">
-            <nav>
-                <ul>
-                    <li><strong>
-                            <?= $title ?? 'Panel' ?>
-                        </strong></li>
-                </ul>
-                <ul>
-                    <li><a href="/" target="_blank" class="secondary">Siteyi Görüntüle</a></li>
-                    <li>
-                        <details class="dropdown">
-                            <summary>Admin</summary>
-                            <ul dir="rtl">
-                                <li><a href="/admin/logout">Çıkış Yap</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
-            </nav>
+        <header class="main-header">
+            <div class="header-title">
+                <h1><?= $title ?? 'Panel' ?></h1>
+            </div>
+            <div class="header-actions">
+                <a href="/" target="_blank" class="btn-secondary-outline">
+                    <i class="fa-solid fa-external-link-alt"></i> Siteyi Görüntüle
+                </a>
+                <details class="dropdown" style="position:relative;">
+                    <summary style="cursor:pointer; font-weight:500;">
+                        <i class="fa-solid fa-user-circle"></i> Admin
+                    </summary>
+                    <ul dir="rtl"
+                        style="position:absolute; right:0; top:100%; background:#fff; border:1px solid #e2e8f0; border-radius:0.5rem; padding:0.5rem; min-width:150px; box-shadow:var(--shadow-md); z-index:50;">
+                        <li><a href="/admin/logout" style="display:block; padding:0.5rem; color:var(--text-main);">Çıkış
+                                Yap</a></li>
+                    </ul>
+                </details>
+            </div>
         </header>
 
-        <hr>
+        <div class="main-body">
+            <!-- Flash Messages -->
+            <?= $this->include('admin/layout/partials/alerts') ?>
 
-        <!-- Flash Messages -->
-        <?= $this->include('admin/layout/partials/alerts') ?>
-
-        <div class="container-fluid">
             <?= $this->renderSection('content') ?>
         </div>
     </main>

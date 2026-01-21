@@ -15,11 +15,11 @@
 <?php endif; ?>
 
 <?php if (session()->getFlashdata('errors')): ?>
-    <div class="article custom-alert error-alert">
-        <ul>
-        <?php foreach (session()->getFlashdata('errors') as $error): ?>
-            <li><?= esc($error) ?></li>
-        <?php endforeach ?>
+    <div class="alert-box alert-danger">
+        <ul style="margin:0; padding-left:1rem;">
+            <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                <li><?= esc($error) ?></li>
+            <?php endforeach ?>
         </ul>
     </div>
 <?php endif; ?>

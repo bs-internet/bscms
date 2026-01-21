@@ -3,65 +3,51 @@
 <?= $this->section('content') ?>
 
 <div class="grid">
-    <article>
-        <header><strong>İçerikler</strong></header>
-        <div class="headings">
-            <h1>120</h1>
-            <small>Toplam İçerik</small>
-        </div>
-        <footer>
-            <a href="/admin/content-type/1/contents" role="button" class="outline">Yönet</a>
-        </footer>
-    </article>
-
-    <article>
-        <header><strong>Kullanıcılar</strong></header>
-        <div class="headings">
-            <h1>45</h1>
-            <small>Aktif Üye</small>
-        </div>
-        <footer>
-            <a href="/admin/users" role="button" class="outline">Yönet</a>
-        </footer>
-    </article>
-
-    <article>
-        <header><strong>Formlar</strong></header>
-        <div class="headings">
-            <h1>12</h1>
-            <small>Okunmamış Mesaj</small>
-        </div>
-        <footer>
-            <a href="/admin/forms" role="button" class="outline">Görüntüle</a>
-        </footer>
-    </article>
-</div>
-
-<div class="grid" style="margin-top: 2rem;">
-    <article>
-        <header>Son Aktiviteler</header>
-        <table class="striped">
-            <thead>
-                <tr>
-                    <th scope="col">Kullanıcı</th>
-                    <th scope="col">İşlem</th>
-                    <th scope="col">Zaman</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Admin</td>
-                    <td>'Hakkımızda' sayfasını güncelledi.</td>
-                    <td>2 saat önce</td>
-                </tr>
-                <tr>
-                    <td>Admin</td>
-                    <td>Yeni kategori ekledi: 'Teknoloji'</td>
-                    <td>5 saat önce</td>
-                </tr>
-            </tbody>
-        </table>
-    </article>
+    <div class="col-full">
+        <article class="card">
+            <header>
+                <span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px;" class="text-muted"></i> Son
+                    Aktiviteler</span>
+            </header>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="20%">Kullanıcı</th>
+                        <th width="50%">İşlem</th>
+                        <th width="30%" style="text-align: right;">Zaman</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div
+                                    style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <span class="font-medium">Admin</span>
+                            </div>
+                        </td>
+                        <td>'Hakkımızda' sayfasını güncelledi.</td>
+                        <td style="text-align: right;" class="text-muted">2 saat önce</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div
+                                    style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <span class="font-medium">Admin</span>
+                            </div>
+                        </td>
+                        <td>Yeni kategori ekledi: <strong>Teknoloji</strong></td>
+                        <td style="text-align: right;" class="text-muted">5 saat önce</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
