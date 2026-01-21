@@ -81,9 +81,12 @@ class CategoryController extends BaseController
             return redirect()->back()->with('error', 'Kayıt başarısız.');
         }
 
-        $this->clearCaches($contentTypeId);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForCreate($category);
 
-        return redirect()->to("/App\Core\Modules\Category\Views\{$contentTypeId}")->with('success', 'Kategori başarıyla oluşturuldu.');
+        \CodeIgniter\Events\Events::trigger('category_created', $category->id);
+
+        return redirect()->to("/admin/categories/{$contentTypeId}")->with('success', 'Kategori başarıyla oluşturuldu.');
     }
 
     public function edit(int $contentTypeId, int $id)
@@ -139,9 +142,12 @@ class CategoryController extends BaseController
             return redirect()->back()->with('error', 'Güncelleme başarısız.');
         }
 
-        $this->clearCaches($contentTypeId, $id);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForUpdate($id, $category);
 
-        return redirect()->to("/App\Core\Modules\Category\Views\{$contentTypeId}")->with('success', 'Kategori başarıyla güncellendi.');
+        \CodeIgniter\Events\Events::trigger('category_updated', $id);
+
+        return redirect()->to("/admin/categories/{$contentTypeId}")->with('success', 'Kategori başarıyla güncellendi.');
     }
 
     public function delete(int $contentTypeId, int $id)
@@ -151,6 +157,9 @@ class CategoryController extends BaseController
 
         // Perform cleanup directly via Event trigger if needed, or rely on Event listener
         // We added CategoryEvents::cleanupComponentLocations on 'category_deleted'.
+
+        // Get category for cache clearing before deletion
+        $category = $this->categoryRepository->findById($id);
 
         $result = $this->categoryRepository->delete($id);
 
@@ -165,12 +174,12 @@ class CategoryController extends BaseController
             return redirect()->back()->with('error', 'Silme işlemi başarısız.');
         }
 
-        $this->clearCaches($contentTypeId, $id);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForDelete($id, $category);
 
-        // Trigger event so that polymorphic cleanup (component_locations) can run
         \CodeIgniter\Events\Events::trigger('category_deleted', $id);
 
-        return redirect()->to("/App\Core\Modules\Category\Views\{$contentTypeId}")->with('success', 'Kategori başarıyla silindi.');
+        return redirect()->to("/admin/categories/{$contentTypeId}")->with('success', 'Kategori başarıyla silindi.');
     }
 
     public function bulkAction(int $contentTypeId)
@@ -207,22 +216,24 @@ class CategoryController extends BaseController
         return redirect()->back()->with('error', 'Geçersiz işlem.');
     }
 
-    protected function clearCaches(int $contentTypeId, int $categoryId = null): void
+    protected function clearCacheForCreate($category): void
     {
-        // Add cache clearing logic here based on your caching strategy
-        // For example:
-        // cache()->delete("category_list_{$contentTypeId}");
-        // if ($categoryId) cache()->delete("category_{$categoryId}");
+        cache()->deleteMatching("category_*");
+        cache()->deleteMatching("content_list_*");
+    }
 
-        // Clearing content lists because contents might belong to this category
-        // Ideally we would know which contents are affected, but that's expensive.
-        // For now, clear content lists for the type.
-        cache()->delete("content_list_{$contentTypeId}");
+    protected function clearCacheForUpdate(int $id, $oldCategory): void
+    {
+        cache()->delete("category_{$id}");
+        cache()->deleteMatching("category_*");
+        cache()->deleteMatching("content_list_*");
+    }
 
-        // If we had a specific category cache
-        if ($categoryId) {
-            cache()->delete("category_contents_{$categoryId}");
-        }
+    protected function clearCacheForDelete(int $id, $category): void
+    {
+        cache()->delete("category_{$id}");
+        cache()->deleteMatching("category_*");
+        cache()->deleteMatching("content_list_*");
     }
 }
 

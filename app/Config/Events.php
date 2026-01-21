@@ -57,9 +57,14 @@ Events::on('pre_system', static function (): void {
     }
 });
 
+use App\Core\Modules\Component\Events\ComponentEvents;
+use App\Core\Modules\Menu\Events\MenuEvents;
+
 Events::on('post_controller_constructor', function () {
     ContentEvents::register();
     CategoryEvents::register();
     FormEvents::register();
+    ComponentEvents::register();
+    MenuEvents::register();
 });
 

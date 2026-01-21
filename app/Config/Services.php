@@ -30,7 +30,22 @@ class Services extends BaseService
             return static::getSharedInstance('loop');
         }
 
-        return new Loop();
+        return new Loop(
+            static::contentRepository(),
+            static::contentMetaRepository(),
+            static::categoryRepository(),
+            static::mediaRepository(),
+            new \App\Core\Modules\Content\Models\ContentCategoryModel()
+        );
+    }
+
+    public static function cacheManager(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('cacheManager');
+        }
+
+        return new \App\Core\Shared\Libraries\CacheManager();
     }
 
     public static function contentTypeRepository(bool $getShared = true)

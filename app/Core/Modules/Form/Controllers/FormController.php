@@ -67,6 +67,11 @@ class FormController extends BaseController
             return redirect()->back()->with('error', 'Form oluşturma başarısız.');
         }
 
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForCreate($form);
+
+        \CodeIgniter\Events\Events::trigger('form_created', $form->id);
+
         return redirect()->to('/admin/forms')->with('success', 'Form başarıyla oluşturuldu.');
     }
 
@@ -121,6 +126,11 @@ class FormController extends BaseController
             return redirect()->back()->with('error', 'Güncelleme başarısız.');
         }
 
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForUpdate($id, $form);
+
+        \CodeIgniter\Events\Events::trigger('form_updated', $id);
+
         return redirect()->to('/admin/forms')->with('success', 'Form başarıyla güncellendi.');
     }
 
@@ -128,6 +138,9 @@ class FormController extends BaseController
     {
         $db = \Config\Database::connect();
         $db->transStart();
+
+        // Get form for cache clearing before deletion
+        $form = $this->formRepository->findById($id);
 
         $result = $this->formRepository->delete($id);
 
@@ -141,6 +154,9 @@ class FormController extends BaseController
         if ($db->transStatus() === false) {
             return redirect()->back()->with('error', 'Silme işlemi başarısız.');
         }
+
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForDelete($id, $form);
 
         \CodeIgniter\Events\Events::trigger('form_deleted', $id);
 
@@ -193,6 +209,23 @@ class FormController extends BaseController
             'submissionData' => $submissionData,
             'fields' => $fields
         ]);
+    }
+
+    protected function clearCacheForCreate($form): void
+    {
+        cache()->deleteMatching("form_*");
+    }
+
+    protected function clearCacheForUpdate(int $id, $oldForm): void
+    {
+        cache()->delete("form_{$id}");
+        cache()->deleteMatching("form_*");
+    }
+
+    protected function clearCacheForDelete(int $id, $form): void
+    {
+        cache()->delete("form_{$id}");
+        cache()->deleteMatching("form_*");
     }
 }
 

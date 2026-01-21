@@ -59,9 +59,13 @@ class ComponentController extends BaseController
             'type' => ComponentType::from($this->request->getPost('type'))
         ];
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $component = $this->componentRepository->create($data);
 
         if (!$component) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Bileşen oluşturulamadı.');
         }
 
@@ -77,7 +81,18 @@ class ComponentController extends BaseController
             ]);
         }
 
-        return redirect()->to("/App\Core\Modules\Component\Views\edit/{$component->id}")->with('success', 'Bileşen başarıyla oluşturuldu. Şimdi alanları ekleyebilirsiniz.');
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Bileşen oluşturma başarısız.');
+        }
+
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForCreate($component);
+
+        \CodeIgniter\Events\Events::trigger('component_created', $component->id);
+
+        return redirect()->to("/admin/components/edit/{$component->id}")->with('success', 'Bileşen başarıyla oluşturuldu. Şimdi alanları ekleyebilirsiniz.');
     }
 
     public function edit(int $id)
@@ -136,9 +151,13 @@ class ComponentController extends BaseController
             'type' => ComponentType::from($this->request->getPost('type'))
         ];
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $result = $this->componentRepository->update($id, $data);
 
         if (!$result) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Bileşen güncellenemedi.');
         }
 
@@ -147,16 +166,45 @@ class ComponentController extends BaseController
             $this->saveLocations($id);
         }
 
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Güncelleme başarısız.');
+        }
+
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForUpdate($id, $component);
+
+        \CodeIgniter\Events\Events::trigger('component_updated', $id);
+
         return redirect()->to('/admin/components')->with('success', 'Bileşen başarıyla güncellendi.');
     }
 
     public function delete(int $id)
     {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        // Get component for cache clearing before deletion
+        $component = $this->componentRepository->findById($id);
+
         $result = $this->componentRepository->delete($id);
 
         if (!$result) {
+            $db->transRollback();
             return redirect()->back()->with('error', 'Bileşen silinemedi.');
         }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Silme işlemi başarısız.');
+        }
+
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForDelete($id, $component);
+
+        \CodeIgniter\Events\Events::trigger('component_deleted', $id);
 
         return redirect()->to('/admin/components')->with('success', 'Bileşen başarıyla silindi.');
     }
@@ -204,6 +252,25 @@ class ComponentController extends BaseController
                 }
             }
         }
+    }
+
+    protected function clearCacheForCreate($component): void
+    {
+        cache()->deleteMatching("component_*");
+    }
+
+    protected function clearCacheForUpdate(int $id, $oldComponent): void
+    {
+        cache()->delete("component_{$id}");
+        cache()->deleteMatching("component_*");
+        cache()->deleteMatching("content_*"); // Components affect content visibility/state
+    }
+
+    protected function clearCacheForDelete(int $id, $component): void
+    {
+        cache()->delete("component_{$id}");
+        cache()->deleteMatching("component_*");
+        cache()->deleteMatching("content_*");
     }
 }
 

@@ -157,8 +157,10 @@ class ContentController extends BaseController
             return redirect()->back()->with('error', 'Kayıt başarısız (İşlem tamamlanamadı)');
         }
 
-        $this->clearCaches($content->id, $contentTypeId);
-        Events::trigger('content_created', $content->id);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForCreate($content);
+
+        Events::trigger('content_created', $content->id, $contentTypeId);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla oluşturuldu');
     }
@@ -273,8 +275,10 @@ class ContentController extends BaseController
             return redirect()->back()->with('error', 'Güncelleme başarısız');
         }
 
-        $this->clearCaches($id, $contentTypeId);
-        Events::trigger('content_updated', $id);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForUpdate($id, $content);
+
+        Events::trigger('content_updated', $id, $contentTypeId);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla güncellendi');
     }
@@ -288,11 +292,8 @@ class ContentController extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $db->transStart();
-
-        // Trigger 'deleting' event to handle cleanup of dependent resources (like component instances)
-        // before the cascade delete removes the links.
-        Events::trigger('content_deleting', $id);
+        // Get content for cache clearing before deletion
+        $content = $this->contentRepository->findById($id);
 
         if (!$this->contentRepository->delete($id)) {
             $db->transRollback();
@@ -305,7 +306,9 @@ class ContentController extends BaseController
             return redirect()->back()->with('error', 'Silme işlemi başarısız');
         }
 
-        $this->clearCaches($id, $contentTypeId);
+        // ✅ CACHE INVALIDATION
+        $this->clearCacheForDelete($id, $content);
+
         Events::trigger('content_deleted', $id);
 
         return redirect()->to("/admin/content-type/{$contentTypeId}/contents")->with('success', 'İçerik başarıyla silindi');
@@ -377,19 +380,26 @@ class ContentController extends BaseController
         return array_column($results, 'category_id');
     }
 
-    protected function clearCaches(int $contentId, int $contentTypeId): void
+    protected function clearCacheForCreate($content): void
     {
-        // Clear specific content cache
-        cache()->delete("content_{$contentId}");
+        cache()->deleteMatching("content_list_*");
+        cache()->delete("content_list_{$content->content_type_id}");
+    }
 
-        // Clear content list cache
-        cache()->delete("content_list_{$contentTypeId}");
+    protected function clearCacheForUpdate(int $id, $oldContent): void
+    {
+        cache()->delete("content_{$id}");
+        cache()->delete("content_list_{$oldContent->content_type_id}");
+        cache()->deleteMatching("content_list_*");
+    }
 
-        // Note: Category caches clearing would ideally be here or in CategoryRepository/Events,
-        // but for now we follow the roadmap which prioritized content caches.
-        // If we want to be thorough:
-        // $categories = $this->getContentCategories($contentId);
-        // foreach ($categories as $catId) { cache()->delete("category_contents_{$catId}"); }
+    protected function clearCacheForDelete(int $id, $content): void
+    {
+        cache()->delete("content_{$id}");
+        if ($content) {
+            cache()->delete("content_list_{$content->content_type_id}");
+        }
+        cache()->deleteMatching("content_list_*");
     }
 }
 

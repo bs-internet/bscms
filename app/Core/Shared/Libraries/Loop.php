@@ -10,6 +10,20 @@ class Loop
     protected array $currentMeta = [];
     protected array $currentCategories = [];
 
+    public function __construct(
+        protected $contentRepository = null,
+        protected $contentMetaRepository = null,
+        protected $categoryRepository = null,
+        protected $mediaRepository = null,
+        protected $contentCategoryModel = null
+    ) {
+        $this->contentRepository = $contentRepository ?? service('contentRepository');
+        $this->contentMetaRepository = $contentMetaRepository ?? service('contentMetaRepository');
+        $this->categoryRepository = $categoryRepository ?? service('categoryRepository');
+        $this->mediaRepository = $mediaRepository ?? service('mediaRepository');
+        $this->contentCategoryModel = $contentCategoryModel ?? service('contentCategoryModel');
+    }
+
     public function setContents(array $contents): void
     {
         $this->contents = $contents;
@@ -33,16 +47,14 @@ class Loop
         $this->currentIndex++;
         $this->currentContent = $this->contents[$this->currentIndex];
 
-        $metaRepo = service('contentMetaRepository');
-        $metas = $metaRepo->getAllByContentId($this->currentContent->id);
+        $metas = $this->contentMetaRepository->getAllByContentId($this->currentContent->id);
 
         $this->currentMeta = [];
         foreach ($metas as $meta) {
             $this->currentMeta[$meta->meta_key] = $meta->meta_value;
         }
 
-        $categoryModel = service('contentCategoryModel');
-        $this->currentCategories = $categoryModel
+        $this->currentCategories = $this->contentCategoryModel
             ->select('categories.*')
             ->join('categories', 'categories.id = content_categories.category_id')
             ->where('content_categories.content_id', $this->currentContent->id)
@@ -186,11 +198,10 @@ class Loop
         $decoded = json_decode($metaValue, true);
 
         if (is_array($decoded)) {
-            $contentRepo = service('contentRepository');
-            return !empty($decoded) ? $contentRepo->findById($decoded[0]) : null;
+            return !empty($decoded) ? $this->contentRepository->findById($decoded[0]) : null;
         }
 
-        return service('contentRepository')->findById((int) $metaValue);
+        return $this->contentRepository->findById((int) $metaValue);
     }
 
     public function getRelations(string $key): array
@@ -211,11 +222,10 @@ class Loop
             $decoded = [(int) $metaValue];
         }
 
-        $contentRepo = service('contentRepository');
         $results = [];
 
         foreach ($decoded as $relatedId) {
-            $content = $contentRepo->findById($relatedId);
+            $content = $this->contentRepository->findById($relatedId);
             if ($content) {
                 $results[] = $content;
             }
