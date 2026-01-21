@@ -2,8 +2,10 @@
 
 namespace App\Core\Modules\Category\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Category\Repositories\Interfaces\CategoryRepositoryInterface;
-use App\Core\Modules\Category\Repositories\Interfaces\ContentTypeRepositoryInterface;
+use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeRepositoryInterface;
 use App\Core\Modules\Category\Validation\CategoryValidation;
 
 class CategoryController extends BaseController

@@ -2,7 +2,9 @@
 
 namespace App\Core\Modules\System\Controllers;
 
-use App\Core\Modules\System\Repositories\Interfaces\UserRepositoryInterface;
+use App\Core\Shared\Controllers\BaseController;
+
+use App\Core\Modules\Auth\Repositories\Interfaces\UserRepositoryInterface;
 
 class ProfileController extends BaseController
 {
@@ -19,10 +21,10 @@ class ProfileController extends BaseController
         $user = $this->userRepository->findById($userId);
 
         if (!$user) {
-            return redirect()->to('/App\Core\Modules\System\Views\dashboard\index')->with('error', 'Kullanıcı bulunamadı.');
+            return redirect()->to('/admin/dashboard')->with('error', 'Kullanıcı bulunamadı.');
         }
 
-        return view('App\Core\Modules\System\Views/index', ['user' => $user]);
+        return view('App\Core\Modules\System\Views/profile/index', ['user' => $user]);
     }
 
     public function update()

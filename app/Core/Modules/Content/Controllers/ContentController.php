@@ -2,11 +2,13 @@
 
 namespace App\Core\Modules\Content\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Content\Repositories\Interfaces\ContentRepositoryInterface;
 use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeRepositoryInterface;
 use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeFieldRepositoryInterface;
 use App\Core\Modules\Content\Repositories\Interfaces\ContentMetaRepositoryInterface;
-use App\Core\Modules\Content\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Core\Modules\Category\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Core\Modules\Content\Validation\ContentValidation;
 use App\Core\Modules\Content\Enums\FieldType;
 use App\Core\Modules\Content\Enums\ContentStatus;

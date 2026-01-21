@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Media\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Media\Repositories\Interfaces\MediaRepositoryInterface;
 use App\Core\Shared\Libraries\ImageProcessor;
 
@@ -163,7 +165,7 @@ class MediaController extends BaseController
             return redirect()->back()->with('error', 'Medya silinemedi.');
         }
 
-        return redirect()->to('/App\Core\Modules\Media\Views\index')->with('success', 'Medya başarıyla silindi.');
+        return redirect()->to('/admin/media')->with('success', 'Medya başarıyla silindi.');
     }
 }
 

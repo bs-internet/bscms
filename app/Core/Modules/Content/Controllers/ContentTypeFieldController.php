@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Content\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeFieldRepositoryInterface;
 use App\Core\Modules\Content\Validation\ContentTypeFieldValidation;
 use App\Core\Modules\Content\Enums\FieldType;

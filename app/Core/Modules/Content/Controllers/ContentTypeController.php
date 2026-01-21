@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Content\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeRepositoryInterface;
 use App\Core\Modules\Content\Validation\ContentTypeValidation;
 

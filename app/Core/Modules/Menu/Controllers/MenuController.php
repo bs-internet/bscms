@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Menu\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Menu\Repositories\Interfaces\MenuRepositoryInterface;
 use App\Core\Modules\Menu\Repositories\Interfaces\MenuItemRepositoryInterface;
 use App\Core\Modules\Menu\Validation\MenuValidation;

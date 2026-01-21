@@ -3,8 +3,8 @@
 namespace App\Core\Modules\System\Controllers;
 
 use App\Core\Shared\Controllers\BaseController;
-use App\Core\Modules\System\Repositories\Interfaces\ContentRepositoryInterface;
-use App\Core\Modules\System\Repositories\Interfaces\FormSubmissionRepositoryInterface;
+use App\Core\Modules\Content\Repositories\Interfaces\ContentRepositoryInterface;
+use App\Core\Modules\Form\Repositories\Interfaces\FormSubmissionRepositoryInterface;
 
 class DashboardController extends BaseController
 {
@@ -29,6 +29,6 @@ class DashboardController extends BaseController
             'draftContents' => $draftContents
         ];
 
-        return view('App\Core\Modules\System\Views/index', $data);
+        return view('App\Core\Modules\System\Views/dashboard/index', $data);
     }
 }

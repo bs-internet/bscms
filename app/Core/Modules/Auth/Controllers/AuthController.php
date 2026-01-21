@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Auth\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Auth\Repositories\Interfaces\UserRepositoryInterface;
 use App\Core\Modules\Auth\Validation\AuthValidation;
 use App\Core\Modules\Auth\Libraries\RateLimiter;
@@ -41,7 +43,7 @@ class AuthController extends BaseController
     public function login()
     {
         if ($this->checkAuth()) {
-            return redirect()->to('/App\Core\Modules\System\Views\dashboard\index');
+            return redirect()->to('/admin/dashboard');
         }
 
         return view('App\Core\Modules\Auth\Views\login');
@@ -127,7 +129,7 @@ class AuthController extends BaseController
             'admin_user_agent' => $userAgent
         ]);
 
-        return redirect()->to('/App\Core\Modules\System\Views\dashboard\index');
+        return redirect()->to('/admin/dashboard');
     }
 
     /**
@@ -148,7 +150,7 @@ class AuthController extends BaseController
 
     public function forgotPassword()
     {
-        return view('App\Core\Modules\Auth\Viewsorgot_password');
+        return view('App\Core\Modules\Auth\Views\forgot_password');
     }
 
     public function sendResetLink()
@@ -196,17 +198,16 @@ class AuthController extends BaseController
         $token = $this->request->getGet('token');
 
         if (!$token) {
-            return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('error', 'Geçersiz şifre sıfırlama bağlantısı.');
+            return redirect()->to('/admin/login')->with('error', 'Geçersiz şifre sıfırlama bağlantısı.');
         }
 
         $user = $this->userRepository->findByValidResetToken($token);
 
         if (!$user) {
-            return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('error', 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı.');
+            return redirect()->to('/admin/login')->with('error', 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı.');
         }
 
-        return view('App\Core\Modules\Auth\Views
-eset_password', ['token' => $token]);
+        return view('App\Core\Modules\Auth\Views\reset_password', ['token' => $token]);
     }
 
     public function updatePassword()
@@ -226,7 +227,7 @@ eset_password', ['token' => $token]);
         $user = $this->userRepository->findByValidResetToken($token);
 
         if (!$user) {
-            return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('error', 'Geçersiz işlem.');
+            return redirect()->to('/admin/login')->with('error', 'Geçersiz işlem.');
         }
 
         $this->userRepository->update($user->id, [
@@ -235,7 +236,7 @@ eset_password', ['token' => $token]);
             'reset_expires_at' => null
         ]);
 
-        return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('success', 'Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.');
+        return redirect()->to('/admin/login')->with('success', 'Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.');
     }
 
     public function logout()
@@ -246,7 +247,7 @@ eset_password', ['token' => $token]);
         helper('cookie');
         delete_cookie('admin_remember_token');
 
-        return redirect()->to('/App\Core\Modules\Auth\Views\login');
+        return redirect()->to('/admin/login');
     }
 }
 

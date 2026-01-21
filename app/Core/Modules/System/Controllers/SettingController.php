@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\System\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\System\Repositories\Interfaces\SettingRepositoryInterface;
 
 class SettingController extends BaseController
@@ -22,7 +24,7 @@ class SettingController extends BaseController
             $groupedSettings[$setting->setting_group][] = $setting;
         }
 
-        return view('App\Core\Modules\System\Views/index', ['groupedSettings' => $groupedSettings]);
+        return view('App\Core\Modules\System\Views/settings/index', ['groupedSettings' => $groupedSettings]);
     }
 
     public function update()
@@ -46,7 +48,7 @@ class SettingController extends BaseController
         $cacheManager = new \App\Core\Shared\Libraries\CacheManager();
         $cacheManager->clearSettings();
 
-        return redirect()->to('/App\Core\Modules\System\Views\settings\index')->with('success', 'Ayarlar başarıyla güncellendi.');
+        return redirect()->to('/admin/settings')->with('success', 'Ayarlar başarıyla güncellendi.');
     }
 }
 

@@ -24,7 +24,7 @@ class AdminAuth implements FilterInterface
                 helper('cookie');
                 delete_cookie('admin_remember_token');
 
-                return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('error', 'Güvenlik nedeniyle oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.');
+                return redirect()->to('/admin/login')->with('error', 'Güvenlik nedeniyle oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.');
             }
 
             return;
@@ -63,7 +63,7 @@ class AdminAuth implements FilterInterface
             }
         }
 
-        return redirect()->to('/App\Core\Modules\Auth\Views\login')->with('error', 'Giriş yapmanız gerekiyor.');
+        return redirect()->to('/admin/login')->with('error', 'Giriş yapmanız gerekiyor.');
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)

@@ -2,6 +2,8 @@
 
 namespace App\Core\Modules\Form\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Form\Repositories\Interfaces\FormRepositoryInterface;
 use App\Core\Modules\Form\Repositories\Interfaces\FormFieldRepositoryInterface;
 use App\Core\Modules\Form\Repositories\Interfaces\FormSubmissionRepositoryInterface;

@@ -9,6 +9,10 @@ return [
     'hours' => 'saat',
     'minutes' => 'dakika',
     'days' => 'gün',
+    'quick_stats' => 'Hızlı İstatistikler',
+    'total_contents' => 'Toplam İçerik',
+    'published_contents' => 'Yayınlanan',
+    'draft_contents' => 'Taslak',
 
     // Settings
     'site_settings' => 'Site Ayarları',

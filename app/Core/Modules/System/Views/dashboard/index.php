@@ -3,6 +3,48 @@
 <?= $this->section('content') ?>
 
 <div class="grid">
+    <div>
+        <article class="card stats-card" style="border-left: 4px solid var(--pico-primary-background);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <small class="text-muted"><?= lang('System.total_contents') ?></small>
+                    <h2 style="margin: 0;"><?= $totalContents ?></h2>
+                </div>
+                <div style="font-size: 2rem; opacity: 0.2;">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div>
+        <article class="card stats-card" style="border-left: 4px solid var(--pico-ins-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <small class="text-muted"><?= lang('System.published_contents') ?></small>
+                    <h2 style="margin: 0;"><?= $publishedContents ?></h2>
+                </div>
+                <div style="font-size: 2rem; opacity: 0.2; color: var(--pico-ins-color);">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div>
+        <article class="card stats-card" style="border-left: 4px solid var(--pico-muted-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <small class="text-muted"><?= lang('System.draft_contents') ?></small>
+                    <h2 style="margin: 0;"><?= $draftContents ?></h2>
+                </div>
+                <div style="font-size: 2rem; opacity: 0.2;">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+
+<div class="grid">
     <div class="col-full">
         <article class="card">
             <header>

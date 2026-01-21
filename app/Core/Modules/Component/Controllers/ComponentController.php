@@ -2,12 +2,14 @@
 
 namespace App\Core\Modules\Component\Controllers;
 
+use App\Core\Shared\Controllers\BaseController;
+
 use App\Core\Modules\Component\Repositories\Interfaces\ComponentRepositoryInterface;
 use App\Core\Modules\Component\Repositories\Interfaces\ComponentFieldRepositoryInterface;
 use App\Core\Modules\Component\Repositories\Interfaces\ComponentLocationRepositoryInterface;
 use App\Core\Modules\Component\Repositories\Interfaces\ComponentInstanceRepositoryInterface;
 use App\Core\Modules\Component\Repositories\Interfaces\ComponentInstanceDataRepositoryInterface;
-use App\Core\Modules\Component\Repositories\Interfaces\ContentTypeRepositoryInterface;
+use App\Core\Modules\Content\Repositories\Interfaces\ContentTypeRepositoryInterface;
 use App\Core\Modules\Component\Validation\ComponentValidation;
 use App\Core\Modules\Component\Enums\ComponentType;
 
@@ -81,7 +83,7 @@ class ComponentController extends BaseController
     public function edit(int $id)
     {
         $component = $this->componentRepository->findById($id);
-        
+
         if (!$component) {
             return redirect()->to('/admin/components')->with('error', 'Bileşen bulunamadı.');
         }
@@ -99,7 +101,7 @@ class ComponentController extends BaseController
         if ($component->type === ComponentType::GLOBAL) {
             $instances = $this->componentInstanceRepository->getByComponentId($id);
             $globalInstance = !empty($instances) ? $instances[0] : null;
-            
+
             if ($globalInstance) {
                 $instanceData = $this->componentInstanceDataRepository->getByInstanceId($globalInstance->id);
             }
