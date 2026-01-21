@@ -39,6 +39,17 @@ class Autoload extends AutoloadConfig
      */
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
+        'App\Core\Shared' => APPPATH . 'Core/Shared',
+        'App\Core\Modules' => APPPATH . 'Core/Modules',
+        'App\Core\Modules\Auth' => APPPATH . 'Core/Modules/Auth',
+        'App\Core\Modules\Category' => APPPATH . 'Core/Modules/Category',
+        'App\Core\Modules\Component' => APPPATH . 'Core/Modules/Component',
+        'App\Core\Modules\Content' => APPPATH . 'Core/Modules/Content',
+        'App\Core\Modules\Form' => APPPATH . 'Core/Modules/Form',
+        'App\Core\Modules\Media' => APPPATH . 'Core/Modules/Media',
+        'App\Core\Modules\Menu' => APPPATH . 'Core/Modules/Menu',
+        'App\Core\Modules\System' => APPPATH . 'Core/Modules/System',
+        'App\Plugins' => APPPATH . 'Plugins',
     ];
 
     /**
@@ -89,12 +100,15 @@ class Autoload extends AutoloadConfig
      * @var list<string>
      */
     public $helpers = [
-        'template_helper',
-        'content_helper',
-        'category_helper',
-        'menu_helper',
-        'setting_helper',
-        'seo_helper',
-        'slug_helper'
+        'url',
+        'App\Core\Shared\Helpers\template',
+        'App\Core\Modules\Content\Helpers\content',
+        'App\Core\Modules\Category\Helpers\category',
+        'App\Core\Modules\Menu\Helpers\menu',
+        'App\Core\Modules\System\Helpers\setting',
+        'App\Core\Modules\Content\Helpers\seo',
+        'App\Core\Modules\Content\Helpers\slug',
+        'App\Core\Shared\Helpers\hook',
+        'App\Core\Shared\Helpers\event',
     ];
 }

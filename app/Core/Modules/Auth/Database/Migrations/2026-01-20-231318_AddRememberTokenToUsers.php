@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Core\Modules\Auth\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class AddRememberTokenToUsers extends Migration
+{
+    public function up()
+    {
+        //
+    }
+
+    public function down()
+    {
+        //
+    }
+}
+

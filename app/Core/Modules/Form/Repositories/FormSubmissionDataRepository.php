@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Core\Modules\Form\Repositories;
+
+use App\Core\Modules\Form\Models\FormSubmissionDataModel;
+use App\Core\Modules\Form\Repositories\Interfaces\FormSubmissionDataRepositoryInterface;
+
+class FormSubmissionDataRepository implements FormSubmissionDataRepositoryInterface
+{
+    protected FormSubmissionDataModel $model;
+
+    public function __construct(FormSubmissionDataModel $model)
+    {
+        $this->model = $model;
+    }
+
+    public function getBySubmissionId(int $submissionId): array
+    {
+        return $this->model->where('submission_id', $submissionId)->findAll();
+    }
+
+    public function create(array $data): ?object
+    {
+        $id = $this->model->insert($data);
+        return $id ? $this->model->find($id) : null;
+    }
+
+    public function deleteBySubmissionId(int $submissionId): bool
+    {
+        return $this->model->where('submission_id', $submissionId)->delete();
+    }
+}

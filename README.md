@@ -1,68 +1,59 @@
-# CodeIgniter 4 Application Starter
+# BSCMS - Modern Modüler İçerik Yönetim Sistemi
 
-## What is CodeIgniter?
+BSCMS, CodeIgniter 4 tabanlı, tamamen modüler ve eklenti (plugin) destekli bir içerik yönetim sistemidir. Bu proje, standart CodeIgniter yapısını aşarak tüm bileşenleri (Logic, Database, Assets) bağımsız modüllere ayırır.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Temel Özellikler
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- **%100 Modüler Mimari**: Her özellik (İçerik, Üyelik, Menü, Medya vb.) kendi bağımsız modülü içinde barındırılır.
+- **Eklenti Desteği**: Gelişmiş `Hook` ve `Event` sistemi sayesinde sisteme dışarıdan eklentiler dahil edilebilir.
+- **Taşınabilir Veritabanı**: Migrations ve Seeders dosyaları modül bazlıdır, modüllerle birlikte taşınabilir.
+- **Modüler Asset Yönetimi**: Her modülün kendine ait CSS/JS dosyaları vardır ve tek bir komutla yayınlanabilir.
+- **Gelişmiş Hook Sistemi**: `HookManager` ile aksiyon (Action) ve filtre (Filter) desteği.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Proje Yapısı
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+```text
+app/
+├── Config/ (Framework yapılandırması)
+├── Core/
+│   ├── Modules/ (Auth, Content, Category, Media, Menu, System, Form, Component)
+│   │   ├── [ModuleName]/
+│   │   │   ├── Controllers/
+│   │   │   ├── Models/
+│   │   │   ├── Database/ (Migrations, Seeds)
+│   │   │   ├── Assets/ (CSS, JS, Images)
+│   │   │   └── Views/
+│   └── Shared/ (Ortak Kütüphaneler, Helperlar, Temel Sınıflar)
+└── Plugins/ (Dışarıdan eklenen modüller/eklentiler)
+```
 
-## Installation & updates
+## Kurulum
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+1. Depoyu klonlayın.
+2. `composer install` komutunu çalıştırın.
+3. `.env` dosyasını oluşturun ve veritabanı ayarlarınızı yapın.
+4. Veritabanı tablolarını oluşturun:
+   ```bash
+   php spark migrate
+   ```
+5. Başlangıç verilerini yükleyin:
+   ```bash
+   php spark db:seed App\Core\Modules\Auth\Database\Seeds\AuthSeeder
+   php spark db:seed App\Core\Modules\System\Database\Seeds\SystemSeeder
+   php spark db:seed App\Core\Modules\Menu\Database\Seeds\MenuSeeder
+   ```
+6. Modül assetlerini `public` klasörüne yayınlayın:
+   ```bash
+   php spark assets:publish
+   ```
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+## Özel CLI Komutları
 
-## Setup
+- `php spark assets:publish`: Tüm modüllerdeki `Assets` klasörlerini `public/assets/` altına kopyalar.
+- `php spark cache:clear`: Tüm sistem önbelleğini temizler.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+## Gereksinimler
 
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
-
-PHP version 8.1 or higher is required, with the following extensions installed:
-
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
-
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- PHP 8.1 veya üzeri
+- MySQL/MariaDB
+- Intl ve Mbstring PHP eklentileri

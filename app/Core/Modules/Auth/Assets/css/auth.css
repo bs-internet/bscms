@@ -1,0 +1,385 @@
+:root {
+    --primary: #1e293b;
+    --primary-hover: #0f172a;
+    --accent: #3b82f6;
+    --bg-right: #ffffff;
+    --bg-left: #f8fafc;
+    --text-color: #334155;
+    --border-color: #e2e8f0;
+
+    --font-family: 'Inter', sans-serif;
+    --pico-font-family: var(--font-family);
+    --pico-font-size: 14px;
+    --pico-primary: var(--primary);
+    --pico-primary-background: var(--primary);
+    --pico-primary-hover: var(--primary-hover);
+    --pico-border-radius: 4px;
+    --pico-form-element-spacing-vertical: 0.5rem;
+    --pico-form-element-spacing-horizontal: 0.75rem;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    background-color: var(--bg-right);
+    font-size: 14px;
+    min-height: 100vh;
+}
+
+/* 
+ * Layouts 
+ */
+
+/* Split Layout (Login) */
+body.login-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Centered Layout (Forgot Password) */
+body.centered-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-left);
+}
+
+/* 
+ * Left Split: Visual / Brand 
+ */
+.split-left {
+    background-color: var(--bg-left);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.5rem;
+    border-right: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.split-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    z-index: 0;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+}
+
+.brand-logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-quote {
+    margin-top: auto;
+    position: relative;
+    z-index: 1;
+}
+
+.brand-quote blockquote {
+    border-left: none;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--primary);
+    background: transparent;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.brand-quote footer {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* 
+ * Right Split: Form 
+ */
+.split-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: var(--bg-right);
+    height: 100vh;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 360px;
+    padding: 0 1rem;
+}
+
+/* 
+ * Centered Card (Forgot Password) 
+ */
+.wrapper {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* 
+ * Typography & Elements 
+ */
+h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.025em;
+}
+
+p.subtitle {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+p {
+    color: #64748b;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+form {
+    text-align: left;
+}
+
+label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.forgot-password {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    font-size: 0.9rem !important;
+    border: 1px solid var(--border-color);
+    background-color: #fff;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    color: var(--primary);
+    height: auto;
+    padding: 0.6rem 0.75rem;
+    width: 100%;
+    margin-bottom: 0;
+    /* Reset pico margin if handled by group */
+}
+
+/* Password Group & Toggle */
+.password-group {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    width: auto;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0 4px 4px 0;
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+    background: transparent;
+    border-color: transparent;
+}
+
+.toggle-password:focus {
+    box-shadow: none;
+}
+
+/* Form Actions (Remember Me + Forgot Link) */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: normal;
+    color: var(--text-color);
+    margin-bottom: 0;
+}
+
+.remember-me input[type="checkbox"] {
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.forgot-password {
+    font-size: 0.85rem;
+    margin-left: auto;
+}
+
+/* Specific spacing for wrapper form inputs if not in group */
+.wrapper input {
+    margin-bottom: 1rem;
+}
+
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    --pico-box-shadow: none;
+}
+
+button.btn-login,
+button[type="submit"] {
+    width: 100%;
+    background-color: var(--primary);
+    border: 1px solid var(--primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.65rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: var(--pico-border-radius);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    margin-top: 0.5rem;
+    position: relative;
+}
+
+button.btn-login:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-spinner {
+    display: none;
+}
+
+.wrapper button[type="submit"] {
+    padding: 0.75rem;
+    /* Match previous design */
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Caps Lock Warning */
+.caps-lock-warning {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: #f59e0b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link a {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover,
+.back-link a:hover {
+    color: var(--primary);
+}
+
+/* Alert Styling */
+.alert-box {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 992px) {
+    body.login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .split-left {
+        display: none;
+    }
+}

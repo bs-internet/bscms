@@ -2,8 +2,8 @@
 
 namespace Config;
 
-use App\Filters\AdminAuth;
-use App\Filters\RateLimit;
+use App\Core\Modules\Auth\Filters\AdminAuth;
+use App\Core\Shared\Filters\RateLimit;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\Cors;
 use CodeIgniter\Filters\CSRF;

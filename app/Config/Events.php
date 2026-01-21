@@ -2,9 +2,9 @@
 
 namespace Config;
 
-use App\Events\ContentEvents;
-use App\Events\CategoryEvents;
-use App\Events\FormEvents;
+use App\Core\Modules\Content\Events\ContentEvents;
+use App\Core\Modules\Category\Events\CategoryEvents;
+use App\Core\Modules\Form\Events\FormEvents;
 use CodeIgniter\Events\Events;
 use CodeIgniter\Exceptions\FrameworkException;
 use CodeIgniter\HotReloader\HotReloader;
@@ -62,3 +62,4 @@ Events::on('post_controller_constructor', function () {
     CategoryEvents::register();
     FormEvents::register();
 });
+

@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Core\Modules\Content\Enums;
+
+enum FieldType: string
+{
+    case TEXT = 'text';
+    case TEXTAREA = 'textarea';
+    case EMAIL = 'email';
+    case NUMBER = 'number';
+    case SELECT = 'select';
+    case CHECKBOX = 'checkbox';
+    case RADIO = 'radio';
+    case IMAGE = 'image';
+    case GALLERY = 'gallery';
+    case FILE = 'file';
+    case WYSIWYG = 'wysiwyg';
+    case REPEATER = 'repeater';
+    case RELATION = 'relation';
+
+    public function label(): string
+    {
+        return match($this) {
+            self::TEXT => 'Metin',
+            self::TEXTAREA => 'Metin Alanı',
+            self::EMAIL => 'E-posta',
+            self::NUMBER => 'Sayı',
+            self::SELECT => 'Seçim Listesi',
+            self::CHECKBOX => 'Onay Kutusu',
+            self::RADIO => 'Radyo Düğmesi',
+            self::IMAGE => 'Görsel',
+            self::GALLERY => 'Galeri',
+            self::FILE => 'Dosya',
+            self::WYSIWYG => 'Zengin Metin Editörü',
+            self::REPEATER => 'Tekrarlayan Alan',
+            self::RELATION => 'İçerik İlişkisi',
+        };
+    }
+
+    public function hasOptions(): bool
+    {
+        return match($this) {
+            self::SELECT, self::RADIO, self::REPEATER, self::RELATION => true,
+            default => false,
+        };
+    }
+
+    public function isMedia(): bool
+    {
+        return match($this) {
+            self::IMAGE, self::GALLERY, self::FILE => true,
+            default => false,
+        };
+    }
+
+    public static function all(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
+
+    public static function options(): array
+    {
+        $options = [];
+        foreach (self::cases() as $case) {
+            $options[$case->value] = $case->label();
+        }
+        return $options;
+    }
+}
+

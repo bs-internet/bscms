@@ -1,0 +1,1 @@
+(Base64 content of image would go here but this is a tool limitation, I cannot pass binary data to this tool. I must skip creating an image file properly directly via write_to_file unless I use SVG or CSS gradient. I will use CSS Gradient for now as it is more reliable for "code" generation tools.)

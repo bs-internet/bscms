@@ -3,8 +3,8 @@
 namespace Config;
 
 use CodeIgniter\Config\BaseService;
-use App\Libraries\Template;
-use App\Libraries\Loop;
+use App\Core\Shared\Libraries\Template;
+use App\Core\Shared\Libraries\Loop;
 
 class Services extends BaseService
 {
@@ -30,13 +30,7 @@ class Services extends BaseService
             return static::getSharedInstance('loop');
         }
 
-        return new Loop(
-            static::contentRepository(),
-            static::contentMetaRepository(),
-            static::categoryRepository(),
-            static::mediaRepository(),
-            static::contentCategoryModel()
-        );
+        return new Loop();
     }
 
     public static function contentTypeRepository(bool $getShared = true)
@@ -45,8 +39,8 @@ class Services extends BaseService
             return static::getSharedInstance('contentTypeRepository');
         }
 
-        return new \App\Repositories\ContentTypeRepository(
-            new \App\Models\ContentTypeModel()
+        return new \App\Core\Modules\Content\Repositories\ContentTypeRepository(
+            new \App\Core\Modules\Content\Models\ContentTypeModel()
         );
     }
 
@@ -56,8 +50,8 @@ class Services extends BaseService
             return static::getSharedInstance('contentRepository');
         }
 
-        return new \App\Repositories\ContentRepository(
-            new \App\Models\ContentModel()
+        return new \App\Core\Modules\Content\Repositories\ContentRepository(
+            new \App\Core\Modules\Content\Models\ContentModel()
         );
     }
 
@@ -67,8 +61,8 @@ class Services extends BaseService
             return static::getSharedInstance('contentMetaRepository');
         }
 
-        return new \App\Repositories\ContentMetaRepository(
-            new \App\Models\ContentMetaModel()
+        return new \App\Core\Modules\Content\Repositories\ContentMetaRepository(
+            new \App\Core\Modules\Content\Models\ContentMetaModel()
         );
     }
 
@@ -78,8 +72,8 @@ class Services extends BaseService
             return static::getSharedInstance('contentTypeFieldRepository');
         }
 
-        return new \App\Repositories\ContentTypeFieldRepository(
-            new \App\Models\ContentTypeFieldModel()
+        return new \App\Core\Modules\Content\Repositories\ContentTypeFieldRepository(
+            new \App\Core\Modules\Content\Models\ContentTypeFieldModel()
         );
     }
 
@@ -89,8 +83,8 @@ class Services extends BaseService
             return static::getSharedInstance('categoryRepository');
         }
 
-        return new \App\Repositories\CategoryRepository(
-            new \App\Models\CategoryModel()
+        return new \App\Core\Modules\Category\Repositories\CategoryRepository(
+            new \App\Core\Modules\Category\Models\CategoryModel()
         );
     }
 
@@ -100,8 +94,8 @@ class Services extends BaseService
             return static::getSharedInstance('mediaRepository');
         }
 
-        return new \App\Repositories\MediaRepository(
-            new \App\Models\MediaModel()
+        return new \App\Core\Modules\Media\Repositories\MediaRepository(
+            new \App\Core\Modules\Media\Models\MediaModel()
         );
     }
 
@@ -111,8 +105,8 @@ class Services extends BaseService
             return static::getSharedInstance('menuRepository');
         }
 
-        return new \App\Repositories\MenuRepository(
-            new \App\Models\MenuModel()
+        return new \App\Core\Modules\Menu\Repositories\MenuRepository(
+            new \App\Core\Modules\Menu\Models\MenuModel()
         );
     }
 
@@ -122,8 +116,8 @@ class Services extends BaseService
             return static::getSharedInstance('menuItemRepository');
         }
 
-        return new \App\Repositories\MenuItemRepository(
-            new \App\Models\MenuItemModel()
+        return new \App\Core\Modules\Menu\Repositories\MenuItemRepository(
+            new \App\Core\Modules\Menu\Models\MenuItemModel()
         );
     }
 
@@ -133,8 +127,8 @@ class Services extends BaseService
             return static::getSharedInstance('formRepository');
         }
 
-        return new \App\Repositories\FormRepository(
-            new \App\Models\FormModel()
+        return new \App\Core\Modules\Form\Repositories\FormRepository(
+            new \App\Core\Modules\Form\Models\FormModel()
         );
     }
 
@@ -144,8 +138,8 @@ class Services extends BaseService
             return static::getSharedInstance('formFieldRepository');
         }
 
-        return new \App\Repositories\FormFieldRepository(
-            new \App\Models\FormFieldModel()
+        return new \App\Core\Modules\Form\Repositories\FormFieldRepository(
+            new \App\Core\Modules\Form\Models\FormFieldModel()
         );
     }
 
@@ -155,8 +149,8 @@ class Services extends BaseService
             return static::getSharedInstance('formSubmissionRepository');
         }
 
-        return new \App\Repositories\FormSubmissionRepository(
-            new \App\Models\FormSubmissionModel()
+        return new \App\Core\Modules\Form\Repositories\FormSubmissionRepository(
+            new \App\Core\Modules\Form\Models\FormSubmissionModel()
         );
     }
 
@@ -166,8 +160,8 @@ class Services extends BaseService
             return static::getSharedInstance('formSubmissionDataRepository');
         }
 
-        return new \App\Repositories\FormSubmissionDataRepository(
-            new \App\Models\FormSubmissionDataModel()
+        return new \App\Core\Modules\Form\Repositories\FormSubmissionDataRepository(
+            new \App\Core\Modules\Form\Models\FormSubmissionDataModel()
         );
     }
 
@@ -177,8 +171,8 @@ class Services extends BaseService
             return static::getSharedInstance('settingRepository');
         }
 
-        return new \App\Repositories\SettingRepository(
-            new \App\Models\SettingModel()
+        return new \App\Core\Modules\System\Repositories\SettingRepository(
+            new \App\Core\Modules\System\Models\SettingModel()
         );
     }
 
@@ -188,8 +182,8 @@ class Services extends BaseService
             return static::getSharedInstance('userRepository');
         }
 
-        return new \App\Repositories\UserRepository(
-            new \App\Models\UserModel()
+        return new \App\Core\Modules\Auth\Repositories\UserRepository(
+            new \App\Core\Modules\Auth\Models\UserModel()
         );
     }
 
@@ -199,8 +193,8 @@ class Services extends BaseService
             return static::getSharedInstance('componentRepository');
         }
 
-        return new \App\Repositories\ComponentRepository(
-            new \App\Models\ComponentModel()
+        return new \App\Core\Modules\Component\Repositories\ComponentRepository(
+            new \App\Core\Modules\Component\Models\ComponentModel()
         );
     }
 
@@ -210,8 +204,8 @@ class Services extends BaseService
             return static::getSharedInstance('componentFieldRepository');
         }
 
-        return new \App\Repositories\ComponentFieldRepository(
-            new \App\Models\ComponentFieldModel()
+        return new \App\Core\Modules\Component\Repositories\ComponentFieldRepository(
+            new \App\Core\Modules\Component\Models\ComponentFieldModel()
         );
     }
 
@@ -221,8 +215,8 @@ class Services extends BaseService
             return static::getSharedInstance('componentLocationRepository');
         }
 
-        return new \App\Repositories\ComponentLocationRepository(
-            new \App\Models\ComponentLocationModel()
+        return new \App\Core\Modules\Component\Repositories\ComponentLocationRepository(
+            new \App\Core\Modules\Component\Models\ComponentLocationModel()
         );
     }
 
@@ -232,8 +226,8 @@ class Services extends BaseService
             return static::getSharedInstance('componentInstanceRepository');
         }
 
-        return new \App\Repositories\ComponentInstanceRepository(
-            new \App\Models\ComponentInstanceModel()
+        return new \App\Core\Modules\Component\Repositories\ComponentInstanceRepository(
+            new \App\Core\Modules\Component\Models\ComponentInstanceModel()
         );
     }
 
@@ -243,8 +237,8 @@ class Services extends BaseService
             return static::getSharedInstance('componentInstanceDataRepository');
         }
 
-        return new \App\Repositories\ComponentInstanceDataRepository(
-            new \App\Models\ComponentInstanceDataModel()
+        return new \App\Core\Modules\Component\Repositories\ComponentInstanceDataRepository(
+            new \App\Core\Modules\Component\Models\ComponentInstanceDataModel()
         );
     }
 
@@ -254,8 +248,8 @@ class Services extends BaseService
             return static::getSharedInstance('contentComponentRepository');
         }
 
-        return new \App\Repositories\ContentComponentRepository(
-            new \App\Models\ContentComponentModel()
+        return new \App\Core\Modules\Component\Repositories\ContentComponentRepository(
+            new \App\Core\Modules\Content\Models\ContentComponentModel()
         );
     }
 
@@ -265,6 +259,6 @@ class Services extends BaseService
             return static::getSharedInstance('contentCategoryModel');
         }
 
-        return new \App\Models\ContentCategoryModel();
+        return new \App\Core\Modules\Content\Models\ContentCategoryModel();
     }
 }
