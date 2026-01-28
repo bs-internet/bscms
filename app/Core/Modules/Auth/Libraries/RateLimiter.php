@@ -10,13 +10,13 @@ namespace App\Core\Modules\Auth\Libraries;
  */
 class RateLimiter
 {
-    protected $session;
+    protected $cache;
     protected $maxAttempts = 5;
     protected $decayMinutes = 5;
 
     public function __construct()
     {
-        $this->session = session();
+        $this->cache = \Config\Services::cache();
     }
 
     /**
@@ -39,19 +39,8 @@ class RateLimiter
      */
     public function attempts(string $key): int
     {
-        $data = $this->session->get($key);
-
-        if (!$data) {
-            return 0;
-        }
-
-        // Check if decay time has passed
-        if (time() > $data['reset_at']) {
-            $this->clear($key);
-            return 0;
-        }
-
-        return $data['attempts'];
+        $attempts = $this->cache->get($key);
+        return $attempts ? (int) $attempts : 0;
     }
 
     /**
@@ -62,19 +51,9 @@ class RateLimiter
      */
     public function hit(string $key): int
     {
-        $data = $this->session->get($key);
-
-        if (!$data) {
-            $data = [
-                'attempts' => 0,
-                'reset_at' => time() + ($this->decayMinutes * 60)
-            ];
-        }
-
-        $data['attempts']++;
-        $this->session->set($key, $data);
-
-        return $data['attempts'];
+        $attempts = $this->attempts($key) + 1;
+        $this->cache->save($key, $attempts, $this->decayMinutes * 60);
+        return $attempts;
     }
 
     /**
@@ -85,13 +64,8 @@ class RateLimiter
      */
     public function availableIn(string $key): int
     {
-        $data = $this->session->get($key);
-
-        if (!$data) {
-            return 0;
-        }
-
-        $remaining = $data['reset_at'] - time();
+        $ttl = $this->cache->getMetadata($key)['expire'] ?? 0;
+        $remaining = $ttl - time();
         return max(0, $remaining);
     }
 
@@ -103,7 +77,7 @@ class RateLimiter
      */
     public function clear(string $key): void
     {
-        $this->session->remove($key);
+        $this->cache->delete($key);
     }
 
     /**

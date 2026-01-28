@@ -106,10 +106,11 @@ class AuthController extends BaseController
         // Remember Me Logic
         if ($this->request->getPost('remember')) {
             $token = bin2hex(random_bytes(32));
+            $hashedToken = hash('sha256', $token);
             $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
 
             $this->userRepository->update($user->id, [
-                'remember_token' => $token,
+                'remember_token' => $hashedToken,  // Store hash, not plain token
                 'remember_expires_at' => $expiresAt
             ]);
 
@@ -121,11 +122,16 @@ class AuthController extends BaseController
         $session = session();
         $session->regenerate();
 
+        // Store IP subnet for hijacking detection
+        $ipParts = explode('.', $ipAddress);
+        $ipSubnet = count($ipParts) >= 3 ? $ipParts[0] . '.' . $ipParts[1] . '.' . $ipParts[2] : $ipAddress;
+
         $session->set([
             'admin_logged_in' => true,
             'admin_user_id' => $user->id,
             'admin_username' => $user->username,
             'admin_ip' => $ipAddress,
+            'admin_ip_subnet' => $ipSubnet,
             'admin_user_agent' => $userAgent
         ]);
 
@@ -159,15 +165,18 @@ class AuthController extends BaseController
         $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {
-            // Security: Don't reveal if user exists
+            // Security: Don't reveal if user exists + Add fake delay to prevent timing attack
+            usleep(random_int(400000, 600000)); // 400-600ms delay
             return redirect()->back()->with('success', 'Eğer bu e-posta adresi kayıtlıysa, şifre sıfırlama bağlantısı gönderildi.');
         }
 
+        // Generate token and hash it
         $token = bin2hex(random_bytes(32));
+        $hashedToken = hash('sha256', $token);
         $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
         $this->userRepository->update($user->id, [
-            'reset_token' => $token,
+            'reset_token' => $hashedToken,  // Store hash, not plain token
             'reset_expires_at' => $expiresAt
         ]);
 
@@ -201,7 +210,10 @@ class AuthController extends BaseController
             return redirect()->to('/admin/login')->with('error', 'Geçersiz şifre sıfırlama bağlantısı.');
         }
 
-        $user = $this->userRepository->findByValidResetToken($token);
+
+        // Hash the token to compare with database
+        $hashedToken = hash('sha256', $token);
+        $user = $this->userRepository->findByValidResetToken($hashedToken);
 
         if (!$user) {
             return redirect()->to('/admin/login')->with('error', 'Geçersiz veya süresi dolmuş şifre sıfırlama bağlantısı.');
@@ -224,17 +236,29 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Şifre en az 6 karakter olmalıdır.');
         }
 
-        $user = $this->userRepository->findByValidResetToken($token);
+        // Hash the token to find user
+        $hashedToken = hash('sha256', $token);
+        $user = $this->userRepository->findByValidResetToken($hashedToken);
 
         if (!$user) {
             return redirect()->to('/admin/login')->with('error', 'Geçersiz işlem.');
         }
 
+        // Update password and clear reset tokens
+        // Also clear remember tokens for security
         $this->userRepository->update($user->id, [
             'password' => $password,
             'reset_token' => null,
-            'reset_expires_at' => null
+            'reset_expires_at' => null,
+            'remember_token' => null,
+            'remember_expires_at' => null
         ]);
+
+        // Invalidate all active sessions for this user
+        $db = \Config\Database::connect();
+        $db->table('ci_sessions')
+            ->where('data LIKE', '%"admin_user_id";i:' . $user->id . '%')
+            ->delete();
 
         return redirect()->to('/admin/login')->with('success', 'Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.');
     }
@@ -248,6 +272,39 @@ class AuthController extends BaseController
         delete_cookie('admin_remember_token');
 
         return redirect()->to('/admin/login');
+    }
+
+    /**
+     * Logout from all devices
+     * Clears all sessions and remember tokens for the current user
+     */
+    public function logoutAllDevices()
+    {
+        $userId = session()->get('admin_user_id');
+
+        if (!$userId) {
+            return redirect()->to('/admin/login');
+        }
+
+        // Clear remember token
+        $this->userRepository->update($userId, [
+            'remember_token' => null,
+            'remember_expires_at' => null
+        ]);
+
+        // Delete all sessions for this user
+        $db = \Config\Database::connect();
+        $db->table('ci_sessions')
+            ->where('data LIKE', '%"admin_user_id";i:' . $userId . '%')
+            ->delete();
+
+        // Destroy current session
+        session()->destroy();
+        helper('cookie');
+        delete_cookie('admin_remember_token');
+
+        return redirect()->to('/admin/login')
+            ->with('success', 'Tüm cihazlardan çıkış yapıldı. Güvenliğiniz için şifrenizi değiştirmenizi öneririz.');
     }
 }
 

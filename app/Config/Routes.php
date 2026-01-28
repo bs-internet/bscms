@@ -21,6 +21,7 @@ $routes->group('admin', function ($routes) {
         $routes->get('login', 'AuthController::login');
         $routes->post('login', 'AuthController::authenticate');
         $routes->get('logout', 'AuthController::logout');
+        $routes->post('logout-all', 'AuthController::logoutAllDevices');
         $routes->get('forgot-password', 'AuthController::forgotPassword');
         $routes->post('forgot-password', 'AuthController::sendResetLink');
         $routes->get('reset-password', 'AuthController::showResetForm');
