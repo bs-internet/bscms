@@ -109,7 +109,7 @@ class AuthController extends BaseController
             $hashedToken = hash('sha256', $token);
             $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
 
-            $this->userRepository->update($user->id, [
+            $this->userRepository->updateTokenFields($user->id, [
                 'remember_token' => $hashedToken,  // Store hash, not plain token
                 'remember_expires_at' => $expiresAt
             ]);
@@ -175,7 +175,7 @@ class AuthController extends BaseController
         $hashedToken = hash('sha256', $token);
         $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        $this->userRepository->update($user->id, [
+        $this->userRepository->updateTokenFields($user->id, [
             'reset_token' => $hashedToken,  // Store hash, not plain token
             'reset_expires_at' => $expiresAt
         ]);
@@ -247,12 +247,11 @@ class AuthController extends BaseController
         // Update password and clear reset tokens
         // Also clear remember tokens for security
         $this->userRepository->update($user->id, [
-            'password' => $password,
-            'reset_token' => null,
-            'reset_expires_at' => null,
-            'remember_token' => null,
-            'remember_expires_at' => null
+            'password' => $password
         ]);
+
+        // Clear all tokens separately
+        $this->userRepository->clearTokenFields($user->id);
 
         // Invalidate all active sessions for this user
         $db = \Config\Database::connect();

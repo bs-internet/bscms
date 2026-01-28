@@ -65,7 +65,7 @@ class AdminAuth implements FilterInterface
                     $newHashedToken = hash('sha256', $newToken);
                     $newExpiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
 
-                    $userRepository->update($user->id, [
+                    $userRepository->updateTokenFields($user->id, [
                         'remember_token' => $newHashedToken,
                         'remember_expires_at' => $newExpiresAt
                     ]);

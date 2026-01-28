@@ -71,11 +71,21 @@ class MediaController extends BaseController
         }
 
         $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx'];
 
         if (!in_array($file->getMimeType(), $allowedMimes)) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Desteklenmeyen dosya türü.'
+            ])->setStatusCode(400);
+        }
+
+        // Extension validation to prevent bypass attacks
+        $extension = strtolower($file->getClientExtension());
+        if (!in_array($extension, $allowedExtensions)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Desteklenmeyen dosya uzantısı.'
             ])->setStatusCode(400);
         }
 

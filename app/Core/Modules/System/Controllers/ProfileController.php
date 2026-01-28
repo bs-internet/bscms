@@ -52,7 +52,8 @@ class ProfileController extends BaseController
         ];
 
         if ($this->request->getPost('password')) {
-            $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+            // Let UserModel->beforeUpdate callback handle hashing
+            $data['password'] = $this->request->getPost('password');
         }
 
         $result = $this->userRepository->update($userId, $data);
