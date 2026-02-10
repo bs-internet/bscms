@@ -59,8 +59,23 @@
             </a>
         </li>
         <li>
+            <a href="/admin/plugins" class="<?= url_is('admin/plugins*') ? 'active' : '' ?>">
+                <i class="fa-solid fa-puzzle-piece"></i> Eklentiler
+            </a>
+        </li>
+        <li>
+            <a href="/admin/plugins" class="<?= url_is('admin/plugins*') ? 'active' : '' ?>">
+                <i class="fa-solid fa-puzzle-piece"></i> Eklentiler
+            </a>
+        </li>
+        <li>
             <a href="/admin/content-types" class="<?= url_is('admin/content-types*') ? 'active' : '' ?>">
                 <i class="fa-solid fa-code"></i> <?= lang('Admin.content_types') ?>
+            </a>
+        </li>
+        <li>
+            <a href="/admin/roles" class="<?= url_is('admin/roles*') ? 'active' : '' ?>">
+                <i class="fa-solid fa-user-shield"></i> Roller & İzinler
             </a>
         </li>
     </ul>

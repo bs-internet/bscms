@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-name" content="<?= csrf_token() ?>">
+    <meta name="csrf-value" content="<?= csrf_hash() ?>">
     <title><?= lang('Admin.dashboard') ?> | BSCMS Admin</title>
 
     <!-- Pico.css -->
@@ -37,6 +39,12 @@
                 <h1><?= $title ?? lang('Admin.dashboard') ?></h1>
             </div>
             <div class="header-actions">
+                <form action="/admin/settings/clear-cache" method="post" style="display:inline; margin:0;">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn-secondary-outline" title="Önbellek Temizle" style="border:none; cursor:pointer;">
+                        <i class="fa-solid fa-broom"></i>
+                    </button>
+                </form>
                 <a href="/" target="_blank" class="btn-secondary-outline">
                     <i class="fa-solid fa-external-link-alt"></i> <?= lang('Admin.view_site') ?>
                 </a>

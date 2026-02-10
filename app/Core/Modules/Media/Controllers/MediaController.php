@@ -48,6 +48,33 @@ class MediaController extends BaseController
         ]);
     }
 
+    /**
+     * JSON API: Return media list for TinyMCE file picker
+     */
+    public function browse()
+    {
+        $media = $this->mediaRepository->getAll();
+        $items = [];
+
+        foreach ($media as $item) {
+            $sizes = [];
+            if (strpos($item->mimetype, 'image/') === 0) {
+                $sizes = $this->imageProcessor->getAvailableSizes($item->filepath);
+            }
+
+            $items[] = [
+                'id' => $item->id,
+                'filename' => $item->filename,
+                'url' => base_url($item->filepath),
+                'mimetype' => $item->mimetype,
+                'filesize' => $item->filesize,
+                'sizes' => $sizes,
+            ];
+        }
+
+        return $this->response->setJSON(['success' => true, 'media' => $items]);
+    }
+
     protected function formatBytes(int $bytes, int $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -160,6 +187,10 @@ class MediaController extends BaseController
             return redirect()->back()->with('error', 'Medya bulunamadı.');
         }
 
+        if ($this->isMediaInUse($id)) {
+            return redirect()->back()->with('error', 'Bu medya içeriklerde kullanılıyor, silinemez.');
+        }
+
         if (strpos($media->mimetype, 'image/') === 0) {
             $this->imageProcessor->deleteAllSizes($media->filepath);
         } else {
@@ -177,5 +208,65 @@ class MediaController extends BaseController
 
         return redirect()->to('/admin/media')->with('success', 'Medya başarıyla silindi.');
     }
-}
 
+    /**
+     * Bulk delete selected media items
+     */
+    public function bulkDelete()
+    {
+        $ids = $this->request->getPost('ids');
+
+        if (empty($ids) || !is_array($ids)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Silinecek dosya seçilmedi.'])->setStatusCode(400);
+        }
+
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            $media = $this->mediaRepository->findById($id);
+            if (!$media)
+                continue;
+
+            if ($this->isMediaInUse($id)) {
+                $skipped++;
+                continue;
+            }
+
+            if (strpos($media->mimetype, 'image/') === 0) {
+                $this->imageProcessor->deleteAllSizes($media->filepath);
+            } else {
+                $filepath = FCPATH . $media->filepath;
+                if (file_exists($filepath)) {
+                    unlink($filepath);
+                }
+            }
+
+            $this->mediaRepository->delete($id);
+            $deleted++;
+        }
+
+        $msg = "$deleted dosya silindi.";
+        if ($skipped > 0) {
+            $msg .= " $skipped dosya kullanımda olduğu için atlandı.";
+        }
+
+        return $this->response->setJSON(['success' => true, 'message' => $msg]);
+    }
+
+    protected function isMediaInUse(int $mediaId): bool
+    {
+        $db = \Config\Database::connect();
+
+        // Check content_meta table
+        // We check for exact match or JSON array contain (simple string check for JSON)
+        $count = $db->table('content_meta')
+            ->where('meta_value', (string) $mediaId)
+            ->orWhere('meta_value LIKE', '%"' . $mediaId . '"%') // For JSON arrays like ["12","15"]
+            ->orWhere('meta_value LIKE', '%,' . $mediaId . ',%') // For comma separated
+            ->countAllResults();
+
+        return $count > 0;
+    }
+}

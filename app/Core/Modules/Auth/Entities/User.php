@@ -6,10 +6,12 @@ use CodeIgniter\Entity\Entity;
 
 class User extends Entity
 {
+    use \App\Core\Modules\Auth\Traits\HasRoles;
+
     protected $datamap = [];
-    
+
     protected $dates = ['created_at', 'updated_at'];
-    
+
     protected $casts = [
         'id' => 'integer',
     ];

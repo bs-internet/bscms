@@ -2,58 +2,23 @@
 
 namespace App\Core\Shared\Interfaces;
 
-/**
- * Plugin Interface
- * 
- * All plugins must implement this interface to be recognized by the PluginManager.
- */
 interface PluginInterface
 {
     /**
-     * Register plugin hooks and event listeners
-     * 
-     * This method is called when the plugin is activated.
-     * Use this to register hooks and event listeners.
-     * 
-     * @return void
+     * Called when the plugin is activated.
+     * Run migration or setup logic here.
      */
-    public function register(): void;
+    public function install(): void;
 
     /**
-     * Boot the plugin
-     * 
-     * This method is called after registration.
-     * Use this to load routes, views, and other resources.
-     * 
-     * @return void
+     * Called when the plugin is deactivated/uninstalled.
+     * Clean up data or settings here.
+     */
+    public function uninstall(): void;
+
+    /**
+     * Called on efficient application start.
+     * Register events, hooks, and routes here.
      */
     public function boot(): void;
-
-    /**
-     * Get plugin name
-     * 
-     * @return string
-     */
-    public function getName(): string;
-
-    /**
-     * Get plugin version
-     * 
-     * @return string
-     */
-    public function getVersion(): string;
-
-    /**
-     * Get plugin author
-     * 
-     * @return string
-     */
-    public function getAuthor(): string;
-
-    /**
-     * Get plugin description
-     * 
-     * @return string
-     */
-    public function getDescription(): string;
 }

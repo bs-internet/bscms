@@ -27,6 +27,9 @@ use CodeIgniter\HotReloader\HotReloader;
  */
 
 Events::on('pre_system', static function (): void {
+    // Boot Plugins
+    service('pluginManager')->bootAll();
+
     if (ENVIRONMENT !== 'testing') {
         if (ini_get('zlib.output_compression')) {
             throw FrameworkException::forEnabledZlibOutputCompression();
@@ -67,4 +70,3 @@ Events::on('post_controller_constructor', function () {
     ComponentEvents::register();
     MenuEvents::register();
 });
-

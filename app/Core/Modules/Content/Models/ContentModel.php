@@ -17,7 +17,12 @@ class ContentModel extends Model
         'content_type_id',
         'title',
         'slug',
-        'status'
+        'status',
+        'properties' // New JSON column
+    ];
+
+    protected $casts = [
+        'properties' => 'json', // Auto-cast JSON to Array/Object
     ];
 
     protected bool $allowEmptyInserts = false;

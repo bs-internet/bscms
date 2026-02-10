@@ -38,6 +38,7 @@ class Filters extends BaseFilters
         'performance' => PerformanceMetrics::class,
         'admin_auth' => AdminAuth::class,
         'rate_limit' => RateLimit::class,
+        'permission' => \App\Core\Modules\Auth\Filters\PermissionFilter::class,
     ];
 
     /**

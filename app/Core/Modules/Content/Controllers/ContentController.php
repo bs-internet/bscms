@@ -122,6 +122,7 @@ class ContentController extends BaseController
         }
 
         $fields = $this->fieldRepository->getByContentType($contentTypeId);
+        $properties = []; // Collect meta for JSON storage
 
         foreach ($fields as $field) {
             $fieldKey = $field->field_key;
@@ -136,14 +137,21 @@ class ContentController extends BaseController
                     $value = $value ? (string) (int) $value : null;
                 }
             } elseif ($field->field_type === FieldType::REPEATER) {
-                $value = is_array($value) ? json_encode($value) : null;
+                // XSS Prevention: Sanitize before encoding
+                $value = is_array($value) ? json_encode($this->sanitizeArray($value)) : null;
             } elseif ($field->field_type === FieldType::GALLERY) {
                 $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
             }
 
             if ($value !== null) {
                 $this->metaRepository->upsert($content->id, $fieldKey, $value);
+                $properties[$fieldKey] = $value; // Add to properties
             }
+        }
+
+        // Dual-Write: Save collected meta as JSON properties
+        if (!empty($properties)) {
+            $this->contentRepository->update($content->id, ['properties' => $properties]);
         }
 
         if ($contentType->has_categories) {
@@ -240,6 +248,7 @@ class ContentController extends BaseController
         }
 
         $fields = $this->fieldRepository->getByContentType($contentTypeId);
+        $properties = []; // Collect meta for JSON storage
 
         foreach ($fields as $field) {
             $fieldKey = $field->field_key;
@@ -254,14 +263,24 @@ class ContentController extends BaseController
                     $value = $value ? (string) (int) $value : null;
                 }
             } elseif ($field->field_type === FieldType::REPEATER) {
-                $value = is_array($value) ? json_encode($value) : null;
+                // XSS Prevention: Sanitize before encoding
+                $value = is_array($value) ? json_encode($this->sanitizeArray($value)) : null;
             } elseif ($field->field_type === FieldType::GALLERY) {
                 $value = is_array($value) ? json_encode(array_map('intval', $value)) : null;
             }
 
             if ($value !== null) {
                 $this->metaRepository->upsert($id, $fieldKey, $value);
+                $properties[$fieldKey] = $value; // Add to properties
             }
+        }
+
+        // Dual-Write: Update properties JSON (Merging with existing is safer? No, form submission is usually full update for standard fields)
+        // But to be safe and efficient, we just overwrite properties with what was submitted.
+        // If we want partial updates, we should read existing first.
+        // Assuming Edit Form submits ALL fields.
+        if (!empty($properties)) {
+            $this->contentRepository->update($id, ['properties' => $properties]);
         }
 
         if ($contentType->has_categories) {
@@ -356,10 +375,30 @@ class ContentController extends BaseController
         $db = \Config\Database::connect();
         $builder = $db->table('content_categories');
 
-        // We are already in a transaction from the caller, so these will be part of it.
+        // Get content definition to find content type id
+        // Note: contentId is already created so we can query it, or pass contentTypeId as argument
+        // But the original code passed contentId. We need to fetch it to be safe 
+        // or rely on caller having correct logic. Let's fetch it for strictness.
+        $content = $this->contentRepository->findById($contentId);
+        if (!$content)
+            return; // Should not happen in this flow
+
+        // Get valid categories for this content type
+        $validCategories = $this->categoryRepository->getAll([
+            'content_type_id' => $content->content_type_id
+        ]);
+        $validCategoryIds = array_column($validCategories, 'id');
+
+        // We are already in a transaction from the caller
         $builder->where('content_id', $contentId)->delete();
 
         foreach ($categoryIds as $categoryId) {
+            // Validate category belongs to content type
+            if (!in_array((int) $categoryId, $validCategoryIds)) {
+                log_message('warning', "Invalid category {$categoryId} assignment attempted for content {$contentId}");
+                continue;
+            }
+
             $builder->insert([
                 'content_id' => $contentId,
                 'category_id' => $categoryId
@@ -382,7 +421,7 @@ class ContentController extends BaseController
 
     protected function clearCacheForCreate($content): void
     {
-        cache()->deleteMatching("content_list_*");
+        $this->deleteCacheMatching("content_list_*");
         cache()->delete("content_list_{$content->content_type_id}");
     }
 
@@ -390,7 +429,7 @@ class ContentController extends BaseController
     {
         cache()->delete("content_{$id}");
         cache()->delete("content_list_{$oldContent->content_type_id}");
-        cache()->deleteMatching("content_list_*");
+        $this->deleteCacheMatching("content_list_*");
     }
 
     protected function clearCacheForDelete(int $id, $content): void
@@ -399,7 +438,36 @@ class ContentController extends BaseController
         if ($content) {
             cache()->delete("content_list_{$content->content_type_id}");
         }
-        cache()->deleteMatching("content_list_*");
+        $this->deleteCacheMatching("content_list_*");
+    }
+
+    protected function deleteCacheMatching(string $pattern): void
+    {
+        $cache = cache();
+
+        if (method_exists($cache, 'deleteMatching')) {
+            $cache->deleteMatching($pattern);
+        }
+    }
+
+    protected function sanitizeValue($value, $fieldType)
+    {
+        if ($fieldType === FieldType::REPEATER) {
+            return is_array($value) ? json_encode($this->sanitizeArray($value)) : null;
+        }
+
+        return $value;
+    }
+
+    protected function sanitizeArray(array $data): array
+    {
+        return array_map(function ($item) {
+            if (is_array($item)) {
+                return $this->sanitizeArray($item);
+            }
+            // HTML encode to prevent XSS in JSON fields
+            return htmlspecialchars((string) $item, ENT_QUOTES, 'UTF-8');
+        }, $data);
     }
 }
 

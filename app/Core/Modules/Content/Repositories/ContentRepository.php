@@ -67,7 +67,15 @@ class ContentRepository implements ContentRepositoryInterface
         $metaRepo = service('contentMetaRepository');
 
         foreach ($relationKeys as $key) {
-            $metaValue = $metaRepo->getByKey($id, $key)?->meta_value;
+            $metaValue = null;
+
+            // Check properties JSON first (Performance Optimization)
+            if (!empty($content->properties) && isset($content->properties->{$key})) {
+                $metaValue = $content->properties->{$key};
+            } else {
+                // Fallback to meta table (for legacy data)
+                $metaValue = $metaRepo->getByKey($id, $key)?->meta_value;
+            }
 
             if (!$metaValue) {
                 $content->{$key . '_relation'} = null;
@@ -86,7 +94,7 @@ class ContentRepository implements ContentRepositoryInterface
                 }
                 $content->{$key . '_relation'} = $related;
             } else {
-                $content->{$key . '_relation'} = $this->findById((int)$metaValue);
+                $content->{$key . '_relation'} = $this->findById((int) $metaValue);
             }
         }
 

@@ -8,6 +8,15 @@ use App\Core\Shared\Libraries\Loop;
 
 class Services extends BaseService
 {
+    public static function pluginManager(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('pluginManager');
+        }
+
+        return new \App\Core\Shared\Managers\PluginManager();
+    }
+
     public static function template(bool $getShared = true)
     {
         if ($getShared) {

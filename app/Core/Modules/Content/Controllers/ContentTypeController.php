@@ -89,6 +89,17 @@ class ContentTypeController extends BaseController
 
     public function delete(int $id)
     {
+        $contentType = $this->repository->findById($id);
+
+        if (!$contentType) {
+            return redirect()->back()->with('error', 'İçerik türü bulunamadı');
+        }
+
+        // Check if content type is protected
+        if ($contentType->is_protected) {
+            return redirect()->back()->with('error', 'Bu içerik türü sistem tarafından korunuyor ve silinemez.');
+        }
+
         if (!$this->repository->delete($id)) {
             return redirect()->back()->with('error', 'İçerik türü silinemedi');
         }
